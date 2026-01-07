@@ -1,16 +1,8 @@
 using UnityEngine;
 
-public class UIManager : MonoBehaviour //UI 가림,보임
+public class UIManager : MonoBehaviour 
 {
-    public static UIManager Instance { get; private set; }
 
-    private void Awake()
-    {
-        if(Instance == null)
-        {
-            Instance = this;
-        }
-    }
     public void AddCardToHaondUI(CardRawData data)
     {
         Debug.Log($"[UI] {data.cardName} 카드를 보관함 UI에 추가하였습니다");
