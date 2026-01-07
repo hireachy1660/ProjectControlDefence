@@ -7,13 +7,15 @@ namespace KCH
     public class DefenseGameManager : MonoBehaviour
     {
         [SerializeField]
-        private KCH.Nexus[] nesuss = new KCH.Nexus[0];
+        private KCH.Nexus[] nexuss = new KCH.Nexus[0];
         [SerializeField]
         private KCH.AllyUnitManager allyMng = null;
         [SerializeField]
         private KCH.EnemyUnitManager enemyMng = null;
         [SerializeField]
         private KCH.TowerManager towerMng = null;
+        [SerializeField]
+        private CardManager cardMng = null;
 
         private int money = 0;
 
