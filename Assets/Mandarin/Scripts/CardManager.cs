@@ -6,10 +6,16 @@ using UnityEngine.UI;
 
 public class CardManager : MonoBehaviour
 {
+    public delegate void CardSelecteddelegate(string _name, string _tag);
+
+    private CardSelecteddelegate cardSelectedCallback;
+
+    public CardSelecteddelegate CardSelectedCallback
+    { set { cardSelectedCallback = value; } }
 
     [Header("Manager References")]
-    [SerializeField] private GameManager gameManager;
-    [SerializeField] private UIManager UIManager;
+    //[SerializeField] private GameManager gameManager;
+    //[SerializeField] private UIManager UIManager;
 
     [Header("UI & Prefab")]
     [SerializeField] private GameObject cardPrefab = null;    // 카드 UI 프리팹
@@ -82,6 +88,10 @@ public class CardManager : MonoBehaviour
 
         // 중복 클릭 방지
         cardUI.GetComponent<Button>().interactable = false;
+        if (data.cardType == ECardType.Unit)
+        {
+            cardSelectedCallback?.Invoke(data.cardName, data.cardType.ToString());
+        }
 
         // 미리 새카드 맨 오른쪽에 생성
         CreateRandomCard();
@@ -89,15 +99,17 @@ public class CardManager : MonoBehaviour
         // 선택한 카드 너비 줄임
         StartCoroutine(SmoothRemoveFilm(cardUI));
 
+
+
         // 참조된 매니저 호출 -> 유닛 소환 GameManager에게 요청
-        if(gameManager != null)
-        {
-            gameManager.StartSummonProcess(data);
-        }
-        if(UIManager != null)
-        {
-            UIManager.AddCardToHaondUI(data);
-        }
+        //if(gameManager != null)
+        //{
+        //    gameManager.StartSummonProcess(data);
+        //}
+        //if(UIManager != null)
+        //{
+        //    UIManager.AddCardToHaondUI(data);
+        //}
     }
 
     // 랜덤버튼 눌렀을 때
