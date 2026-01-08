@@ -6,6 +6,23 @@ public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance { get; private set; }
 
+    public struct CardDefinition
+    {
+        public int enumidx;
+        public DicType type;
+    }
+
+    public enum DicType
+    {
+        Tower, PlayerUnit, Enemy
+    }
+
+    
+
+    public List<CardDefinition> cardDefs = new List<CardDefinition>();
+
+
+    #region 프리팹 리스트
     // 각 유닛 프리팹을 보관 
     // 아래의 유닛 및 타워 리소스의 자료형은 각 베이스 스크립트 형으로 변경할 것
     [SerializeField]
@@ -21,12 +38,13 @@ public class ResourceManager : MonoBehaviour
     { get { return enemyPrefList; } }
     public Dictionary<string, GameObject> AllyPrefList
     { get { return allyPrefList; } }
-
+    #endregion
     // 자료구조] 이름을 키(key)로 해서 프리팹을 빠르게 찾기 위한 사전형태
     private Dictionary<string, GameObject> prefabDic = new Dictionary<string, GameObject>();
 
     // 테스트를 위해 인스펙터에서 카드 3~5장 정도 직접 리스트 넣기
     public List<CardRawData> allCards = new List<CardRawData>();
+
 
     private void Awake()
     {
@@ -42,18 +60,55 @@ public class ResourceManager : MonoBehaviour
         GameObject[] gos = Resources.LoadAll<GameObject>("Prefabs");
         foreach (GameObject go in gos)
         {
-            switch (go.tag)
+            switch (LayerMask.LayerToName(go.layer))
             {
-                case "Ally":
-                    //allyPrefList.Add(go.GetComponent<BaseAlly>);
+                case "PlayerUnit":
+                    //PlayerUnit pu = null;
+                    //if (!go.TryGetComponent<BaseTower>(out pu))
+                    //    continue;
+
+                    //towerPrefList.Add(pu.Type.ToString(), go);
+
+                    //CardDefinition newCardDef = new CardDefinition();
+                    //newCardDef.type = DicType.TOWER;
+                    //newCardDef.enumidx = (int)pu.Type;
+
+                    //cardDefs.Add(newCardDef);
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseAlly>)");
                     break;
                 case "Enemy":
-                    //allyPrefList.Add(go.GetComponent<BaseEnemy>);
+                    //Enemy en = null;
+                    //if (!go.TryGetComponent<BaseTower>(out en))
+                    //    continue;
+
+                    //towerPrefList.Add(en.Type.ToString(), go);
+
+                    //CardDefinition newCardDef = new CardDefinition();
+                    //newCardDef.type = DicType.TOWER;
+                    //newCardDef.enumidx = (int)en.Type;
+
+                    //cardDefs.Add(newCardDef);
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseEnemy>)");
                     break;
                 case "Tower":
-                    towerPrefList.Add(go.GetComponent<BaseTower>().Type.ToString(),go);
+                    BaseTower bt = null;
+                    if (!go.TryGetComponent<BaseTower>(out bt))
+                        continue;
+
+                    if(!towerPrefList.TryAdd(bt.Type.ToString(), go))
+                    {
+                        Debug.Log("Duplicate Type In PrefabList");
+                        continue;
+                    }
+
+                    CardDefinition newCardDef = new CardDefinition();
+                    newCardDef.type = DicType.Tower;
+                    newCardDef.enumidx = (int)bt.Type;
+
+                    cardDefs.Add(newCardDef);
+
+                    MakeCard(bt.Type.ToString(), DicType.Tower);
+
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseTower>)");
                     break;
                 case null:
@@ -65,6 +120,19 @@ public class ResourceManager : MonoBehaviour
         // 시작하자마자 리소스를 로드하여 자료구조화함
         LoadAllPrefabs();
     }
+
+    private void MakeCard(string _type, DicType _dicType)
+    {
+        CardRawData newData = new CardRawData();
+        newData.cardName = _type;
+        newData.type = _dicType;   // 경로저장
+
+        // 임시 코스트 설정(이름에따라 설정하는 로직을 넣을수있다)
+        newData.cost = Random.Range(1, 6);
+
+        allCards.Add(newData);
+    }
+
     private void LoadAllPrefabs()
     {
         //리소시스/프리팹스 폴더안의 모든 게임오브젝트를 가져온다.
@@ -81,14 +149,7 @@ public class ResourceManager : MonoBehaviour
             // 테스트용 프리팹 정보로 카드 데이터 생성
             // 실제 프로젝트에서는 엑셀이나 JSON데이터를 섞어서 사용
             // 지금은 프리팹 이름과 정보를 매칭해서 리스트 넣는다.
-            CardRawData newData = new CardRawData();
-            newData.cardName = obj.name;
-            newData.prefabPath="Prefabs/" + obj.name;   // 경로저장
 
-            // 임시 코스트 설정(이름에따라 설정하는 로직을 넣을수있다)
-            newData.cost = Random.Range(1, 6);
-                
-            allCards.Add(newData);
 
         }
         Debug.Log($"[ResourceManager] 총 {allCards.Count}개의 리소스를 로드했습니다.");
