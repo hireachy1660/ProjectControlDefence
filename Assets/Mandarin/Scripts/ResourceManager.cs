@@ -1,9 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static BaseTower;
 
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance { get; private set; }
+
+    // 각 유닛 프리팹을 보관 
+    // 아래의 유닛 및 타워 리소스의 자료형은 각 베이스 스크립트 형으로 변경할 것
+    [SerializeField]
+    private Dictionary<string, GameObject> towerPrefList = new Dictionary<string, GameObject>();
+    [SerializeField]
+    private Dictionary<string, GameObject> enemyPrefList = new Dictionary<string, GameObject>();
+    [SerializeField]
+    private Dictionary<string, GameObject> allyPrefList = new Dictionary<string, GameObject>();
+
+    public Dictionary<string, GameObject> TowerPrefList
+    { get { return towerPrefList; } }
+    public Dictionary<string, GameObject> EnemyPrefList
+    { get { return enemyPrefList; } }
+    public Dictionary<string, GameObject> AllyPrefList
+    { get { return allyPrefList; } }
 
     // 자료구조] 이름을 키(key)로 해서 프리팹을 빠르게 찾기 위한 사전형태
     private Dictionary<string, GameObject> prefabDic = new Dictionary<string, GameObject>();
@@ -20,6 +37,29 @@ public class ResourceManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+
+        GameObject[] gos = Resources.LoadAll<GameObject>("Prefabs");
+        foreach (GameObject go in gos)
+        {
+            switch (go.tag)
+            {
+                case "Ally":
+                    //allyPrefList.Add(go.GetComponent<BaseAlly>);
+                    Debug.Log("allyPrefList.Add(go.GetComponent<BaseAlly>)");
+                    break;
+                case "Enemy":
+                    //allyPrefList.Add(go.GetComponent<BaseEnemy>);
+                    Debug.Log("allyPrefList.Add(go.GetComponent<BaseEnemy>)");
+                    break;
+                case "Tower":
+                    towerPrefList.Add(go.GetComponent<BaseTower>().Type.ToString(),go);
+                    Debug.Log("allyPrefList.Add(go.GetComponent<BaseTower>)");
+                    break;
+                case null:
+                    Debug.Log("ResouceManager Loaded Somthing Worng");
+                    break;
+            }
         }
 
         // 시작하자마자 리소스를 로드하여 자료구조화함
