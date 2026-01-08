@@ -39,7 +39,7 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
     //적을 찾는 로직
     protected virtual void FindTarget()
     {
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, range, targetLayer);
+        Collider[] enemies = Physics.OverlapSphere(transform.position, range, targetLayer);
         if (enemies.Length > 0)
         {
             //가장 가까운 적을 타켓으로 설정
