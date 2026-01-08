@@ -2,34 +2,43 @@
 
 public class GameManager :  MonoBehaviour
 {
-    public void StartSummonProcess(CardRawData data)
+    public static GameManager Instance;     // 싱글톤
+
+    [SerializeField] private int currentGold = 1000;
+    //[SerializeField] private int rerollCost = 100;      // 리롤 비용
+
+    // 객체가 생성될 때(Awake) 자기 자신을 Instance에 할당한다.
+    private void Awake() => Instance = this;
+    // 다른 스크립트에서 현재 골드가 얼마인지 읽기만할 때
+    public int GetCurrentGold() => currentGold;
+
+
+    //UI에서 카드를 사용하려고 할 때 호출되는 핵심 함수
+    public bool TrySummonUnit(CardRawData data)
     {
-        // 리소스 매니저를 통해 실제 프리팹 파일을 가져온다
-        GameObject unitPrefab = ResourceManager.Instance.GetPrefab(data.prefabPath);
-
-        if (unitPrefab != null)
+        // 비용체크
+        if(currentGold < data.cost)
         {
-            // 실제 월드에 소환
-            Instantiate(unitPrefab, Vector3.zero, Quaternion.identity);
-            // 실제로 소환되는 대신 로그를 찍어 확인한다.
-            Debug.Log($"<color=green>[GameManager]</color> {data.cardName} 소환 프로세스 시작");
-        }
-        else
-        {
-            Debug.LogError($"{data.prefabPath} 경로에 프리팹이 없습니다.");
+            Debug.Log("골드가 부족합니다!");
+            return false;
         }
 
-        // 타입 용도
-        if (data.cardType == ECardType.Unit)
-        {
-            Debug.Log($"{data.cardName} 유닛은 앞으로 걸어가게 설정합니다.");
-            // 유닛 AI 활성화 로직...
-        }
-        else if (data.cardType == ECardType.Tower)
-        {
-            Debug.Log($"{data.cardName} 타워는 제자리에 고정합니다.");
-            // 설치 위치 지정 로직...
-        }
+        // 골드 차감
+        currentGold -= data.cost;
 
+        // 실제 필드에서 유닛,타워,힐등 소환(Resources에서 로드 등)
+        GameObject unit = Instantiate(Resources.Load<GameObject>(data.prefabPath));
+        Debug.Log($"[Game] {data.cardName} 소환 완료! 남은 골드: {currentGold}");
+
+        return true;
     }
+    //랜덤버튼
+    public void SpendGold(int amount)
+    {
+        // 입력받은 금액만큼 골드를 줄인다.
+        currentGold -= amount;
+
+        //여기에는 UI텍스트 (현재 골드표시)을 갱신하는 코드를 넣으면 좋다.
+    }
+
 }

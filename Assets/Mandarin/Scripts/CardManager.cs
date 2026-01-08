@@ -1,178 +1,81 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
-using TMPro;   // List<T> 사용가능
-using UnityEngine.UI;
 
+// 카드 연산 및 데이터 관리 - 순수하게 어떤 카드가 뽑혔는지, (리롤 비용은 얼마인지)
 public class CardManager : MonoBehaviour
 {
-    public delegate void CardSelecteddelegate(string _name, string _tag);
+    //public delegate void CardSelecteddelegate(string _name, string _tag);
+    //private CardSelecteddelegate cardSelectedCallback;
+    //public CardSelecteddelegate CardSelectedCallback
+    //{ set { cardSelectedCallback = value; } }
 
-    private CardSelecteddelegate cardSelectedCallback;
+    // 현재 뽑힌 카드들의 데이터 정보를 저장하는 리스트.
+    public List<CardRawData> currentHandData = new List<CardRawData>();
+    private const int MAX_SLOTS = 5;        // 항상 유지할 카드 갯수
+    private const int REROLL_COST = 100;    // 리롤 비용 설정
 
-    public CardSelecteddelegate CardSelectedCallback
-    { set { cardSelectedCallback = value; } }
-
-    [Header("Manager References")]
-    //[SerializeField] private GameManager gameManager;
-    //[SerializeField] private UIManager UIManager;
-
-    [Header("UI & Prefab")]
-    [SerializeField] private GameObject cardPrefab = null;    // 카드 UI 프리팹
-    [SerializeField] private Transform cardsContainer = null;    // 카드가 생성될 UI 부모( 하단 패널 )
-
-    private const int MAX_SLOTS = 5;   // 항상 유지할 카드 개수
-    private const float ANIM_SPEED = 0.25f;  // 애니메이션 속도
-
-    private void Start()
+    // 게임 시작 시 처음으로 5장의 카드를 뽑아 리스트로 반환한다.
+    public List<CardRawData> GetInitialHand()
     {
-        //게임 시작 시 처음으로 5장을 채움
-        FillEmptySlots();
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogError("ResourceManager가 씬에 없습니다!");
+            return new List<CardRawData>();   // 빈 리스트를 반환하여 오류 방지.
+        }
+
+        if (ResourceManager.Instance.allCards.Count == 0)
+        {
+            Debug.LogError("ResourceManager에 등록된 카드가 0개입니다!");
+            return new List<CardRawData>();   // 빈 카드 목록을 반환하여 오류 방지.  
+        }
+
+        currentHandData.Clear();    // 기존 카드들 지우고 새로운 카드를 채움.
+
+        for (int i = 0; i < MAX_SLOTS; i++)
+        {
+            currentHandData.Add(GetRandomCardData());   // 카드추가
+        }
+        // 완성된 카드 데이터 리스트를 UIManager등에 전달.
+        return currentHandData;
     }
 
-    // 핵심] 부족한 카드만큼 랜덤하게 채우기 
-    public void FillEmptySlots()
+    public CardRawData GetRandomCardData()
     {
-        // 부모 오브젝트가 연결되지 않았다면 실행하지 않음
-        if (cardsContainer == null) return;
-
-        // 현재 떠있는 카드 개수 체크
-        int currentChildCount = cardsContainer.childCount;
-        // 부족한 개수 계산
-        int needToFill = MAX_SLOTS - currentChildCount;
-
-        for(int i=0; i<needToFill; i++)
+        if (ResourceManager.Instance == null)
         {
-            CreateRandomCard();
+            return null;
         }
+        // 리소스 매니저가 가진 전체 카드 목록을 가져온다.
+        var allData = ResourceManager.Instance.allCards;
+        return allData[Random.Range(0, allData.Count)];
     }
 
-    // 리소스매니저에서 정보 받아서 카드 생성.
-    private void CreateRandomCard()
+    // 카드 선택 시 데이터 처리 (ex.비용계산 등)
+    //public void ProcessCardSelection(CardRawData data)
+    //{
+    //    Debug.Log($"[Logic] {data.cardName} 데이터 처리 중...");
+    //    // 여기서부터 골드 차감이나 데이터적인 처리를 수행한다.
+    //}
+
+    // 리롤을 할 수 있는지 체크하고 골드를 차감하는 논리
+    public bool TryProcessReroll()
     {
-        // 리소스매니저가 있는지 체크
-        if (ResourceManager.Instance == null) return;
-
-        //////
-
-        // 리소스 매니저에서 랜덤 데이터 하나 가져오기 (매니저 역할)
-        // 리소스매니저 함수,클래스 수정하기.
-        List<CardRawData> allData = ResourceManager.Instance.allCards;
-        CardRawData randomData = allData[Random.Range(0, allData.Count)];
-
-        // 카드UI생성(매니저 역할)
-        GameObject newCard = Instantiate(cardPrefab, cardsContainer);
-
-        ///
-
-        //생성되자마자 투명하게 만들기(등장 전 튐 방지)
-        if (newCard.TryGetComponent<CanvasGroup>(out CanvasGroup cg))
+        // GameManger에게 현재 소지금 확인.
+        if(GameManager.Instance.GetCurrentGold() >= REROLL_COST)
         {
-            cg.alpha = 0;
-            // 아주 짧은 시간 동안만 투명도를 올려주는 간단한 연출
-            StartCoroutine(FadeInCard(cg));
+            // 골드 차감 실행
+            GameManager.Instance.SpendGold(REROLL_COST);
+
+            //리롤 남은 금액
+            int remainingGold = GameManager.Instance.GetCurrentGold();
+
+            Debug.Log($"[Logic] 리롤 비용 {REROLL_COST}골드 차감 완료");
+            Debug.Log($"[Game] 리롤 완료! 남은 골드: {remainingGold}");
+
+            return true;
         }
-
-        // 지시 ( 카드가 알아서 하게 )
-        if (newCard.TryGetComponent<Cards>(out Cards cardScript))
-        {
-            // 자, 이 데이터로 너의 몸을 꾸며라~
-            cardScript.Setup(randomData, this);
-        }
-    }
-
-    // 카드 사용(클릭) 시 호출
-    public void OnCardSelected(CardRawData data, GameObject cardUI)
-    {
-        if (data == null) return;
-
-        // 중복 클릭 방지
-        cardUI.GetComponent<Button>().interactable = false;
-        if (data.cardType == ECardType.Unit)
-        {
-            cardSelectedCallback?.Invoke(data.cardName, data.cardType.ToString());
-        }
-
-        // 미리 새카드 맨 오른쪽에 생성
-        CreateRandomCard();
-
-        // 선택한 카드 너비 줄임
-        StartCoroutine(SmoothRemoveFilm(cardUI));
-
-
-
-        // 참조된 매니저 호출 -> 유닛 소환 GameManager에게 요청
-        //if(gameManager != null)
-        //{
-        //    gameManager.StartSummonProcess(data);
-        //}
-        //if(UIManager != null)
-        //{
-        //    UIManager.AddCardToHaondUI(data);
-        //}
-    }
-
-    // 랜덤버튼 눌렀을 때
-    public void OnClickReroll()
-    {
-        // 골드 매니저가 있다면 골드 체크 
-        // if( Gold < 2 ) return;
-
-        // 기존 카드 삭제 및 재생성
-        // 모든 자식을 돌면서 부뫄 관계를 끊고 해야함.
-        foreach (Transform child in cardsContainer)
-        {
-            child.SetParent(null);
-            Destroy(child.gameObject);
-        }
-
-        // 약간의 시간차 두고 다시 채우기 ( 삭제가 완료된 후 실행 )
-        Invoke("FillEmptySlots", 0.05f);
-
-        Debug.Log("상점 리롤 완료!");
-    }
-
-    private IEnumerator SmoothRemoveFilm(GameObject cardUI)
-    {
-        LayoutElement layout = cardUI.GetComponent<LayoutElement>();
-        CanvasGroup canvasGroup = cardUI.GetComponent<CanvasGroup>();
-
-        float startWidth = 210f;    // 현재 카드 너비
-        float elapsed = 0f;
-
-        while(elapsed < ANIM_SPEED)
-        {
-            elapsed += Time.deltaTime;
-            float percent = elapsed / ANIM_SPEED;
-            // Mathf.SmoothStep을 쓰면 훨씬 쫀득하게 된다.
-            float currentWidth = Mathf.Lerp(startWidth, 0, Mathf.SmoothStep(0, 1, percent));
-
-            if(layout != null)
-            {
-                layout.preferredWidth = currentWidth;
-                layout.minWidth = currentWidth;
-            }
-            if(canvasGroup != null)
-            {
-                canvasGroup.alpha = 1 - percent;
-            }
-            yield return null;
-        }
-
-        // 완전히 사라지며 정리 (잔상 방지)
-        cardUI.SetActive(false);
-        Destroy(cardUI);
-    }
-    private IEnumerator FadeInCard(CanvasGroup cg)
-    {
-        float elapsed = 0;
-        while (elapsed < 0.2f)   // 아주 빠르게 등장
-        {
-            elapsed += Time.deltaTime;
-            cg.alpha = elapsed / 0.1f;
-            yield return null;
-        }
-        cg.alpha = 1;
+        Debug.Log("[Logic] 골드가 부족하여 리롤 불가");
+        return false;
     }
 
 
