@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class EnemyUnit : MonoBehaviour
+public class EnemyUnit : MonoBehaviour, IDamageable
 {
     public enum EnemyState
     {
@@ -44,7 +44,8 @@ public class EnemyUnit : MonoBehaviour
 
     private Animator animator;
     private bool isUnitGrid = false;
-    
+
+    private int hp = 100;
     private void Start()
     {
 
@@ -366,5 +367,11 @@ public class EnemyUnit : MonoBehaviour
         }
 
         return targetPos - (transform.position - targetPos);
+    }
+
+    public void TakeDamage(float damage) // 按眉俊 单固瘤 贸府
+    {
+        hp -= (int)damage;
+        Debug.Log("Name : " + gameObject.name + ",Hp : "  + hp);
     }
 }

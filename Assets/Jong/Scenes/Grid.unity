@@ -509,7 +509,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1698,7 +1698,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2357,7 +2357,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3499,7 +3499,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4089,7 +4089,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4598,7 +4598,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6046,7 +6046,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6186,7 +6186,7 @@ GameObject:
   - component: {fileID: 1449460725}
   - component: {fileID: 1449460724}
   - component: {fileID: 1449460723}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6919,7 +6919,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 177072, guid: 27953ea55848f7a48897c38360d8b331, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 178220, guid: 27953ea55848f7a48897c38360d8b331, type: 3}
       propertyPath: m_Layer
@@ -7157,7 +7157,7 @@ MonoBehaviour:
     m_Bits: 64
   Unit:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 256
   playerUnit:
     serializedVersion: 2
     m_Bits: 512
@@ -8116,6 +8116,10 @@ PrefabInstance:
     - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_Name
       value: Character_Skeleton_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 197842, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 407176, guid: fe1cffe6ed7a7ff4798b18c00b0358e3, type: 3}
       propertyPath: m_LocalPosition.x
