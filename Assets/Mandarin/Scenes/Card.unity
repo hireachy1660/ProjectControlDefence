@@ -210,7 +210,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &282621217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223,6 +223,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621cc181ee669404f9e655eb3e8ded14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TUIManager
+  cardLogicManager: {fileID: 1474847680}
+  cardPrefab: {fileID: 2020276494377106287, guid: 2f26097d3027fc44f95072b839ff3cfb, type: 3}
+  cardContainer: {fileID: 1349287364}
 --- !u!4 &282621218
 Transform:
   m_ObjectHideFlags: 0
@@ -762,6 +765,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c09316a1b70279240a93ced65440e181, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TGameManager
+  currentGold: 1000
 --- !u!4 &1106441752
 Transform:
   m_ObjectHideFlags: 0
@@ -1020,10 +1024,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af436b3a8aaf27b4e94178fccd8254a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardManager
-  gameManager: {fileID: 1106441751}
-  UIManager: {fileID: 282621217}
-  cardPrefab: {fileID: 2020276494377106287, guid: 2f26097d3027fc44f95072b839ff3cfb, type: 3}
-  cardsContainer: {fileID: 1349287364}
+  currentHandData: []
 --- !u!4 &1474847681
 Transform:
   m_ObjectHideFlags: 0
@@ -1325,9 +1326,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1474847680}
-        m_TargetAssemblyTypeName: CardManager, Assembly-CSharp
-        m_MethodName: OnClickReroll
+      - m_Target: {fileID: 1800230982}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: OnRerollButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1387,6 +1388,7 @@ GameObject:
   - component: {fileID: 1800230980}
   - component: {fileID: 1800230979}
   - component: {fileID: 1800230978}
+  - component: {fileID: 1800230982}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1477,6 +1479,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1800230982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800230977}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621cc181ee669404f9e655eb3e8ded14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  cardLogicManager: {fileID: 1474847680}
+  cardPrefab: {fileID: 2020276494377106287, guid: 2f26097d3027fc44f95072b839ff3cfb, type: 3}
+  cardContainer: {fileID: 1349287364}
 --- !u!1 &1982189003
 GameObject:
   m_ObjectHideFlags: 0
