@@ -10,12 +10,16 @@ public class GameObjectList : MonoBehaviour
 
     [SerializeField]
     private List<EnemyUnit> enemyUnit;
+
+    [SerializeField]
+    private List<TowerUnit> towerUnit;
     private void Awake()
     {
         instance = this;
         playerUnit = new List<PlayerUnit>();
         enemyUnit = new List<EnemyUnit>();
-        
+        towerUnit = new List<TowerUnit>();
+
     }
 
     private void Update()
@@ -34,6 +38,15 @@ public class GameObjectList : MonoBehaviour
             if (!playerUnit.Contains(playerList[i]))
             {
                 playerUnit.Add(playerList[i]);
+            }
+        }
+
+        TowerUnit[] towerList = FindObjectsByType<TowerUnit>(FindObjectsSortMode.None);
+        for (int i = 0; i < towerList.Length; ++i)
+        {
+            if (!towerUnit.Contains(towerList[i]))
+            {
+                towerUnit.Add(towerList[i]);
             }
         }
 
@@ -58,6 +71,17 @@ public class GameObjectList : MonoBehaviour
         }
 
         return enemyTr;
+    }
+
+    public Transform[] towerUnitList()
+    {
+        Transform[] towerTr = new Transform[towerUnit.Count];
+        for (int i = 0; i < towerUnit.Count; ++i)
+        {
+            towerTr[i] = towerUnit[i].transform;
+        }
+
+        return towerTr;
     }
 }
 

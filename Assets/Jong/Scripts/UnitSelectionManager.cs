@@ -13,7 +13,6 @@ public class UnitSelectionManager : MonoBehaviour
     public List<GameObject> unitsSelected = new List<GameObject>();
     public GameObject floorMarker;
 
-    public PathRequestManager pathRequestManager;
 
     bool isUnitGrid = false;
     private void Awake()
@@ -70,17 +69,17 @@ public class UnitSelectionManager : MonoBehaviour
             }
         }
 
-        //if (Input.GetMouseButtonDown(1))
-        //{
-        //    RaycastHit hitInfo;
-        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Input.GetMouseButtonDown(1))
+        {
+            RaycastHit hitInfo;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        //    if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, 1 << LayerMask.NameToLayer("Floor")))
-        //    {
-        //        PathRequestManager.CheckUnitGrid(hitInfo.point,out isUnitGrid);
-        //        Debug.Log("isUnitGrid : " + isUnitGrid);
-        //    }
-        //}
+            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, 1 << LayerMask.NameToLayer("Floor")))
+            {
+                PathRequestManager.CheckUnitGrid(hitInfo.point, out isUnitGrid);
+                Debug.Log("isUnitGrid : " + isUnitGrid);
+            }
+        }
     }
 
     private void SelectByClicking(GameObject _selectUnit)

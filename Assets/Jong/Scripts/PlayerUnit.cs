@@ -21,7 +21,7 @@ public class PlayerUnit : MonoBehaviour
 
     [Header("거리 및 속도 설정")]
     public float detectionRange = 10f;
-    public float attackRange = 2f;
+    public float attackRange = 5f;
     public float chaseSpeed = 10f;
 
 
@@ -151,10 +151,10 @@ public class PlayerUnit : MonoBehaviour
             //state = UnitState.Move;
             transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
             PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
-            if(isUnitGrid)
-            {
-                currentWaypoint -= (transform.position - currentWaypoint) * 2f;
-            }
+            ////if(isUnitGrid)
+            //{
+            //    currentWaypoint -= (transform.position - currentWaypoint) * 2f;
+            //}
             //transform.position += separationVector * separateForce * Time.deltaTime;
             Turn(transform.position, currentWaypoint);
             //if (currentWaypoint == path[^1] && Vector3.Distance(transform.position, target.position) <= minTargetDistance)
@@ -241,7 +241,7 @@ public class PlayerUnit : MonoBehaviour
                 //state = EnemyState.Attack;
                 // 공격 사거리에 들어왔으므로 이동 멈춤 or 공격 로직 수행
                 // 여기서는 예시로 이동만 멈추고 대기
-                Turn(transform.position, target.position);
+                Attack();
                 mr.material.color = Color.red;
                 //UpdateAnimation(state);
 
@@ -485,7 +485,11 @@ public class PlayerUnit : MonoBehaviour
 
         return targetPos - (transform.position - targetPos);
     }
+    private void Attack()
+    {
+        Turn(transform.position, target.position);
 
+    }
     private void OnDestroy()
     {
         UnitSelectionManager.Instance.allUnitsList.Remove(gameObject);

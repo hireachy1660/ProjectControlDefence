@@ -5,7 +5,7 @@ public class Grid : MonoBehaviour
     //public bool onlyDisplayPathGizmos;
     public bool displayGridGizmos;
     public LayerMask UnwalkableMask; // Physics.Sphere에서 충돌을 감지할 Mask
-    public LayerMask Unit;
+    public LayerMask enemyUnit;
     public LayerMask playerUnit;
     //public Transform player;
     public Vector2 gridWorldSize; // 그리드를 덮을 좌표 영역
@@ -58,9 +58,8 @@ public class Grid : MonoBehaviour
         {
             for(int y = 0; y < gridSizeY; ++y)
             {
-                
-                bool inUnit = (Physics.CheckSphere(grid[x,y].worldPosition, nodeRadius, Unit));
-                inUnit = (Physics.CheckSphere(grid[x, y].worldPosition, nodeRadius, playerUnit));
+
+                bool inUnit = (Physics.CheckSphere(grid[x, y].worldPosition, nodeRadius, enemyUnit) || (Physics.CheckSphere(grid[x, y].worldPosition, nodeRadius, playerUnit)));
                 grid[x, y].inUnit = inUnit;
             }
         }
