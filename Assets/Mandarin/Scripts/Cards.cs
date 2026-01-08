@@ -34,6 +34,10 @@ public class Cards : MonoBehaviour
         {
             cardManager.OnCardSelected(myData, this.gameObject);
         }
+        else
+        {
+            Debug.Log(cardManager.gameObject.name + "is Connected");
+        }
 
     }
 }
