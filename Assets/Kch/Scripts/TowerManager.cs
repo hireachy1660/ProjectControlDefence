@@ -1,6 +1,7 @@
 namespace KCH
 {
     using System.Collections;
+    using UnityEditor.UIElements;
     using UnityEngine;
 
 
@@ -8,6 +9,10 @@ namespace KCH
     {
         //private Queue<BaseTower> towerPull;         // 풀링용 리스트 
         private BaseTower curGo = null;
+        private BaseTower curBuildingTower = null;
+
+        [SerializeField]    // 초기에 대상 레이어(바닥)를 선택 필수
+        private LayerMask flootlayer;
 
 
 
@@ -27,14 +32,37 @@ namespace KCH
             //        break;
             //    }
             //}
-            Instantiate(curGo);
+
+            curBuildingTower = Instantiate(curGo);
+            StartCoroutine(BuildMode());
 
 
         }
 
-        private IEnumerator FindBuildPos()
+        private IEnumerator BuildMode()
         {
-            curGo.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            curBuildingTower.enabled = false;
+
+            while (curBuildingTower != null)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, 50f, flootlayer))
+                {
+                    curBuildingTower.transform.position = hit.point + (Vector3.up *1f);
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    break;
+                }
+                else if (Input.GetMouseButtonDown(1))
+                {
+                    curBuildingTower.gameObject.SetActive(false);
+                    break;
+                }
+                    yield return null;
+            }
+            curBuildingTower = null;
             yield break;
         }
 
