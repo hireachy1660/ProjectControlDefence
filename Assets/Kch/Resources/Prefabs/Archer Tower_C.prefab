@@ -56,6 +56,7 @@ MonoBehaviour:
     m_Bits: 256
   projectilePrefab: {fileID: 8129354329158709297, guid: e5ef1570f34f3174ba6caf846f2af2bc, type: 3}
   firePoint: {fileID: 2460708998027136656}
+  myCollider: {fileID: 8286374533816057700}
   type: 0
 --- !u!65 &8286374533816057700
 BoxCollider:
@@ -72,7 +73,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

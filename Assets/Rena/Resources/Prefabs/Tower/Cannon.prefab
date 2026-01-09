@@ -96,7 +96,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -133,6 +133,7 @@ MonoBehaviour:
     m_Bits: 256
   projectilePrefab: {fileID: 5688207321663580933, guid: d2155d430c5cdc54bb218d730fa33484, type: 3}
   firePoint: {fileID: 3367057336256126346}
+  type: 0
 --- !u!1 &8084135571410073534
 GameObject:
   m_ObjectHideFlags: 0
