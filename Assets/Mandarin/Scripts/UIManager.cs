@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// 업로드전
 public class UIManager : MonoBehaviour
 {
     [Header("Sub Managers")]
