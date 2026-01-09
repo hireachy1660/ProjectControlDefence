@@ -6491,12 +6491,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 819eba21c5d431443b7326c108148cbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unit
-  detectionRange: 10
-  attackRange: 2
-  chaseSpeed: 10
   baseCamp: {fileID: 0}
   gameObjectList: {fileID: 0}
   playerUnitList: []
+  towerUnitList: []
+  unitLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  stopDistance: 2
 --- !u!65 &782665825993197725
 BoxCollider:
   m_ObjectHideFlags: 0

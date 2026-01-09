@@ -4,7 +4,7 @@ using System;
 
 public class Heap<T> where T : IHeapItem<T>
 {
-    T[] items;
+    T[] items; // 이진트리 구조를 가지지만 배열 형식으로 저장
     int currentItemCount;
 
     public Heap(int maxHeapSize)
@@ -93,11 +93,11 @@ public class Heap<T> where T : IHeapItem<T>
 
     public T RemoveFirst()
     {
-        T itemFirst = items[0];
+        T itemFirst = items[0]; // 맨 위 값을 제거
         currentItemCount--;
-        items[0] = items[currentItemCount];
+        items[0] = items[currentItemCount]; // 맨마지막에 있는 값을 맨 위로 올림
         items[0].HeapIndex = 0;
-        SortDown(items[0]);
+        SortDown(items[0]); // 재 정렬
         return itemFirst;
     }
 
@@ -115,7 +115,7 @@ public class Heap<T> where T : IHeapItem<T>
 
 public interface IHeapItem<T> : IComparable<T>
 {
-    int HeapIndex
+    int HeapIndex // 배열의 인덱스 값으로 사용
     {
         get;
         set;
