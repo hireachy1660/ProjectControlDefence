@@ -1,3 +1,4 @@
+using KCH;
 using System.Collections.Generic;
 using UnityEngine;
 using static BaseTower;
@@ -76,20 +77,17 @@ public class ResourceManager : MonoBehaviour
                     //cardDefs.Add(newCardDef);
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseAlly>)");
                     break;
+
                 case "Enemy":
-                    //Enemy en = null;
-                    //if (!go.TryGetComponent<BaseTower>(out en))
-                    //    continue;
+                    EnemyUnit en = null;
+                    if (!go.TryGetComponent<EnemyUnit>(out en))
+                        continue;
 
-                    //towerPrefList.Add(en.Type.ToString(), go);
-
-                    //CardDefinition newCardDef = new CardDefinition();
-                    //newCardDef.type = DicType.TOWER;
-                    //newCardDef.enumidx = (int)en.Type;
-
-                    //cardDefs.Add(newCardDef);
+                    enemyPrefList.Add(EnemyUnitManager.EEnemyType.Enemy.ToString(), go);    // 추후 에너미 베이스 클래스에 이넘을 가지는 시리얼라이즈 필드 추가 필요
+                    
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseEnemy>)");
                     break;
+
                 case "Tower":
                     BaseTower bt = null;
                     if (!go.TryGetComponent<BaseTower>(out bt))

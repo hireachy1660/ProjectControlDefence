@@ -41,6 +41,8 @@ namespace KCH
 
                 CurSpawnPos++;
             }
+            else
+            { Debug.Log("EnemyUnitManager.SpawnEnemy.Cant Find In ResourceManager"); }
         }
 
         private void OnDeadEnemy(EnemyUnit _unit)// 타입도 넣어 줄것

@@ -46,7 +46,7 @@ public class GameManager :  MonoBehaviour
         return true;
     }
 
-    private void SpawnUnit(string _type, ResourceManager.DicType _layer)
+    public void SpawnUnit(string _type, ResourceManager.DicType _layer)
     {
         switch (_layer)
         {

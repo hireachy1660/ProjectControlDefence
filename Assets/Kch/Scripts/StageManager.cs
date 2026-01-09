@@ -9,6 +9,7 @@ public struct EnemySpawnData
 {
     public EnemyUnitManager.EEnemyType EnemyType;      // 리소스 매니저에서 찾을 키값 (또는 이넘)
     public int count;             // 소환할 마릿수
+    [Range(1f, 100f)]
     public float spawnInterval;   // 마리당 소환 간격
 }
 
@@ -25,20 +26,30 @@ public class StageManager : MonoBehaviour
 {
 
     [SerializeField]
-    private List<EnemySpawnData> waveList;
-    [SerializeField]
-    private float ReadyTime = 20f;
+    private List<WaveData> waveList;
 
     private void Start()
     {
-        
+        StartCoroutine(StartStageCoroutine());
     }
 
     private IEnumerator StartStageCoroutine()
     {
-        yield return new WaitForSeconds(ReadyTime);
+        
+        foreach (WaveData data in waveList)
+        {
+            yield return new WaitForSeconds(data.waveDelay);
+            for (int i = 0; i < data.enemyList.Count; i++)
+            {
+             for(int j = 0; j < data.enemyList[i].count; j++)
+                {
+                    GameManager.Instance.SpawnUnit(data.enemyList[i].EnemyType.ToString(), ResourceManager.DicType.Enemy);
+                    yield return new WaitForSeconds(data.enemyList[i].spawnInterval);
+                }
+            }
+        }
 
-
+        Debug.Log("All Wave Done");
         yield break;
     }
 
