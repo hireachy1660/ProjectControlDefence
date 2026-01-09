@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Collections;
 using System;
-using Mono.Cecil;
 
 public class PathFinding : MonoBehaviour
 {
@@ -70,7 +69,7 @@ public class PathFinding : MonoBehaviour
                         continue;
 
                     int newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
-                    if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
+                    if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour)) // 기존 gCost보다 비용이 적어지거나 List에 추가 되지 않으면 추가
                     {
                         neighbour.gCost = newMovementCostToNeighbour;
                         neighbour.hCost = GetDistance(neighbour, targetNode);
@@ -93,7 +92,7 @@ public class PathFinding : MonoBehaviour
 
 
     }
-    private Vector3[] RetracePath(Node _startNode ,Node _endNode)
+    private Vector3[] RetracePath(Node _startNode ,Node _endNode) // Node.parent 값을 참고하여 목적지 -> 출발지를 배열로 저장
     {
         List<Node> path = new List<Node>();
         Node currentNode = _endNode;
@@ -118,7 +117,7 @@ public class PathFinding : MonoBehaviour
         for(int i =1; i<_path.Count;++i)
         {
             Vector2 directionNew = new Vector2(_path[i - 1].gridX - _path[i].gridX, _path[i - 1].gridY - _path[i].gridY);
-            if(directionOld != directionNew)
+            if(directionOld != directionNew) // 방향이 다른 그리드만 waypoint에 저장
             {
                 waypoints.Add(_path[i - 1].worldPosition);
             }
@@ -154,5 +153,9 @@ public class PathFinding : MonoBehaviour
         bool result = grid.CanUnitGrid(currentNode, _unitSizeX, _unitSizeZ);
         return result;
     }
-
+    public bool TestUnitGrid(Vector3 checkPos, float radius)
+    {
+        bool result = grid.TestUnitGrid(checkPos, radius);
+        return result;
+    }
 }
