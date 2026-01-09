@@ -9,7 +9,7 @@ public class Projectile : MonoBehaviour
     public float explosionRadius = 2f;
     public bool isPiercing = false;
 
-    private Transform target;
+    private Collider target;
     private Vector3 startPos;
     private Vector3 targetLastPos;
     private float damage;
@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour
     private Vector3 shootDirection;
     private List<GameObject> hitEnemies = new List<GameObject>();
 
-    public void Setup(Transform _target, float _damage, bool _useArc)
+    public void Setup(Collider _target, float _damage, bool _useArc)
     {
         target = _target;
         damage = _damage;
@@ -28,7 +28,7 @@ public class Projectile : MonoBehaviour
 
         if (target != null)
         {
-            targetLastPos = target.position;
+            targetLastPos = new Vector3(target.bounds.center.x, transform.position.y, target.bounds.center.z);
             shootDirection = (targetLastPos - startPos).normalized;
         }
     }
@@ -36,11 +36,11 @@ public class Projectile : MonoBehaviour
     void Update()
     {
         // 물리 속도 강제 초기화 (추락 방지)
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
         // 1. 관통형(대포) 로직
@@ -54,7 +54,7 @@ public class Projectile : MonoBehaviour
         }
 
         // 2. 일반/박격포 로직
-        if (target != null) targetLastPos = target.position;
+        if (target != null) targetLastPos = target.bounds.center;
 
         float initialDist = Vector3.Distance(startPos, targetLastPos);
         if (initialDist < 0.1f) initialDist = 0.1f;
@@ -101,17 +101,18 @@ public class Projectile : MonoBehaviour
         else
         {
             // 타겟이 없더라도 해당 위치의 적을 직접 찾아 데미지를 줍니다.
-            Collider2D hit = Physics2D.OverlapPoint(transform.position);
-            if (hit != null && hit.CompareTag("Enemy"))
+            Collider[] hit = Physics.OverlapSphere(transform.position, 0.1f);
+            if (hit.Length > 0&& hit[0].CompareTag("Enemy"))
             {
-                hit.GetComponent<IDamageable>()?.TakeDamage(damage);
+                hit[0].GetComponent<IDamageable>()?.TakeDamage(damage);
             }
         }
     }
 
     void Explode()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
+        
+        Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Enemy"))
@@ -121,21 +122,21 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.CompareTag("Tower")) return;
+        if (other.CompareTag("Tower")) return;
 
-        if (collision.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy"))
         {
-            IDamageable damageable = collision.GetComponent<IDamageable>();
+            IDamageable damageable = other.GetComponent<IDamageable>();
             if (damageable == null) return;
 
             if (isPiercing) // 대포
             {
-                if (!hitEnemies.Contains(collision.gameObject))
+                if (!hitEnemies.Contains(other.gameObject))
                 {
                     damageable.TakeDamage(damage);
-                    hitEnemies.Add(collision.gameObject);
+                    hitEnemies.Add(other.gameObject);
                 }
             }
             else if (!isExplosive) // 아처 (날아가다 직접 부딪힌 경우)
@@ -145,4 +146,5 @@ public class Projectile : MonoBehaviour
             }
         }
     }
+
 }

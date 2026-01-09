@@ -118,7 +118,7 @@ public class ResourceManager : MonoBehaviour
         }
 
         // 시작하자마자 리소스를 로드하여 자료구조화함
-        LoadAllPrefabs();
+        //LoadAllPrefabs();
     }
 
     private void MakeCard(string _type, DicType _dicType)
