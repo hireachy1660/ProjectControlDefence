@@ -70,9 +70,14 @@ public class PathRequestManager : MonoBehaviour
         TryProcessNext();
     }
 
-    public static void CheckUnitGrid(Vector3 _worldPosition, out bool _isUnitGrid)
+    public static void CheckUnitGrid(Vector3 _unitPos, out bool _isUnitGrid)
     {
-        _isUnitGrid = instance.pathFinding.isUnitGrid(_worldPosition);
+        _isUnitGrid = instance.pathFinding.isUnitGrid(_unitPos);
+    }
+
+    public static void CanUnitGrid(Vector3 _unitPos, float _unitSizeX, float _unitSizeZ, out bool _isUnitGrid)
+    {
+        _isUnitGrid = instance.pathFinding.CanUnitGrid(_unitPos, _unitSizeX, _unitSizeZ);
     }
 
 }

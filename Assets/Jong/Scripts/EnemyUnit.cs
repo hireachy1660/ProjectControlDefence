@@ -50,6 +50,9 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     private bool isUnitGrid = false;
 
     private int hp = 100;
+    private  float attackDelay = 10f;
+    private float attackTime = 0f;
+    private float dmg = 5f;
     private void Start()
     {
 
@@ -65,10 +68,6 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     private void Update()
     {
         UpdateAnimation(state);
-        if(target != null && state == EnemyState.Attack)
-        {
-            Attack();
-        }
     }
     private Vector3 RandomTargetPosition() // 같은 목적지를 받을 경우 뭉치는 현상이 발생하기 때문에 분산시키기 위해 offset을 넣어준다.
     {
@@ -250,7 +249,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 state = EnemyState.Attack;
                 // 공격 사거리에 들어왔으므로 이동 멈춤 or 공격 로직 수행
                 // 여기서는 예시로 이동만 멈추고 대기
-                Attack();
+                StartCoroutine("AttackCoroutine");
                 //mr.material.color = Color.red;
                 //UpdateAnimation(state);
 
@@ -405,13 +404,13 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     //    return targetPos - (transform.position - targetPos);
     //}
-    private void Attack()
+    private void Attack(float _dmg)
     {
         
         StopAllCoroutines();
         Turn(transform.position, target.position);
         float dist = (transform.position - target.position).sqrMagnitude;
-        
+        Debug.Log("TargetName : " + target.name + "(" + _dmg + ")");
         if (dist > detectionRange * detectionRange)
         {
             target = null;
@@ -427,5 +426,37 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + hp);
     }
 
+    private IEnumerator AttackCoroutine()
+    {
+        StopCoroutine("Chase");
+        StopCoroutine("FollowPath");
+        float time = 0;
+        float attackDelay = 5f;
+        while(true)
+        {
+            time += Time.deltaTime;
+            if(time>=attackDelay)
+            {
+                state = EnemyState.Attack;
+                Turn(transform.position, target.position);
+                Debug.Log("TargetName : " + target.name + "(" + dmg + ")");
+                time = 0f;
+                yield return new WaitForSeconds(1f);
+                continue;
+            }
+            state = EnemyState.Idle;
+            
+            float dist = (transform.position - target.position).sqrMagnitude;
+            if (dist > detectionRange * detectionRange)
+            {
+                break;
+            }
+            yield return null;
+        }
+        target = null;
+        state = EnemyState.Idle;
+        isChase = false;
+        PathRequestManager.RequestPath(transform.position, baseCamp.position, OnPathFound);
+    }
 
 }
