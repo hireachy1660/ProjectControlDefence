@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
+// 업로드전 
 // 개별 UI 표현 및 동작 - 유닛 단위 UI 스크립트, 클릭이벤트, 애니메이션등 보여지는것에 집중
 public class UICard : MonoBehaviour
 {
