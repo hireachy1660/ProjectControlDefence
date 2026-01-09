@@ -3051,7 +3051,6 @@ MonoBehaviour:
   allUnitsList: []
   unitsSelected: []
   floorMarker: {fileID: 1111339590}
-  pathRequestManager: {fileID: 1101461203}
 --- !u!4 &441047226
 Transform:
   m_ObjectHideFlags: 0
@@ -6051,7 +6050,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.31575328, g: 0.9716981, b: 0, a: 0.16470589}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6361,9 +6360,9 @@ MonoBehaviour:
   UnwalkableMask:
     serializedVersion: 2
     m_Bits: 64
-  Unit:
+  enemyUnit:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   playerUnit:
     serializedVersion: 2
     m_Bits: 512
@@ -6530,6 +6529,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   enemyUnit: []
+  towerUnit: []
 --- !u!4 &1123598849
 Transform:
   m_ObjectHideFlags: 0
@@ -7946,6 +7946,8 @@ MonoBehaviour:
   baseCamp: {fileID: 375733922}
   gameObjectList: {fileID: 1123598848}
   playerUnitList: []
+  towerUnitList: []
+  target: {fileID: 0}
 --- !u!1001 &1436038662
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8257,6 +8259,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 572486e0aa0a7944f9c9879ecdd8372b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KCH.TowerManager
+  flootlayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  matOfSatate: []
 --- !u!1 &1601607420
 GameObject:
   m_ObjectHideFlags: 0
