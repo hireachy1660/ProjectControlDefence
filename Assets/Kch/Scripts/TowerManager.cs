@@ -46,6 +46,8 @@ namespace KCH
             if(curBuildingTower == null)
                 yield break;
 
+            
+
             curBuildingTower.enabled = false;
             MeshRenderer mr = curBuildingTower.gameObject.GetComponentInChildren<MeshRenderer>();
             bool isvaildPos = false;
