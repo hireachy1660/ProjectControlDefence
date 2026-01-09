@@ -47,7 +47,6 @@ namespace KCH
                 yield break;
 
             curBuildingTower.enabled = false;
-            BoxCollider collider = curBuildingTower.gameObject.GetComponent<BoxCollider>();
             MeshRenderer mr = curBuildingTower.gameObject.GetComponentInChildren<MeshRenderer>();
             bool isvaildPos = false;
 
