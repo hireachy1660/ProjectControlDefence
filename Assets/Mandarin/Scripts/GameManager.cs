@@ -4,6 +4,18 @@ public class GameManager :  MonoBehaviour
 {
     public static GameManager Instance;     // 싱글톤
 
+
+    [SerializeField]
+    private KCH.Nexus[] nexuss = new KCH.Nexus[0];
+    [SerializeField]
+    private KCH.AllyUnitManager allyMng = null;
+    [SerializeField]
+    private KCH.EnemyUnitManager enemyMng = null;
+    [SerializeField]
+    private KCH.TowerManager towerMng = null;
+    [SerializeField]
+    private CardManager cardMng = null;
+
     [SerializeField] private int currentGold = 1000;
     //[SerializeField] private int rerollCost = 100;      // 리롤 비용
 
@@ -17,8 +29,8 @@ public class GameManager :  MonoBehaviour
     public bool TrySummonUnit(CardRawData data)
     {
         // 비용체크
-        if(currentGold < data.cost)
-        {
+       if(currentGold < data.cost)
+       {
             Debug.Log("골드가 부족합니다!");
             return false;
         }
@@ -26,12 +38,34 @@ public class GameManager :  MonoBehaviour
         // 골드 차감
         currentGold -= data.cost;
 
-        // 실제 필드에서 유닛,타워,힐등 소환(Resources에서 로드 등)
-        GameObject unit = Instantiate(Resources.Load<GameObject>(data.prefabPath));
-        Debug.Log($"[Game] {data.cardName} 소환 완료! 남은 골드: {currentGold}");
+        SpawnUnit(data.cardName, data.type);
+        //    // 실제 필드에서 유닛,타워,힐등 소환(Resources에서 로드 등)
+        //    GameObject unit = Instantiate(Resources.Load<GameObject>(data.prefabPath));
+        //    Debug.Log($"[Game] {data.cardName} 소환 완료! 남은 골드: {currentGold}");
 
         return true;
     }
+
+    private void SpawnUnit(string _type, ResourceManager.DicType _layer)
+    {
+        switch (_layer)
+        {
+            case ResourceManager.DicType.Enemy:
+                enemyMng.SpawnEnemy(_type);
+                break;
+            case ResourceManager.DicType.PlayerUnit:
+                allyMng.SpawnAlly(_type);
+                break;
+            case ResourceManager.DicType.Tower:
+                towerMng.BuildTower(_type);
+                break;
+
+
+
+        }
+
+    }
+
     //랜덤버튼
     public void SpendGold(int amount)
     {

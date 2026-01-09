@@ -13,8 +13,31 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
     public GameObject projectilePrefab;  //투사체 프리맵
     public Transform firePoint;          //발사 위치
 
+    [SerializeField]
+    private BoxCollider myCollider = null;
+
     protected float nextAttackTime;
-    protected Transform currentTarget;
+    protected Collider currentTarget;
+
+
+    public enum TowerEnum
+    { ARCHER, CANON, MORTAR }
+    [SerializeField]
+    protected TowerEnum type;
+
+    public TowerEnum Type
+    {  get { return type; } }
+
+
+    private void OnEnable()
+    {
+        myCollider.isTrigger = false;
+    }
+
+    private void OnDisable()
+    {
+        myCollider.isTrigger = true;
+    }
 
     //타워 매니저가 풀링에서 꺼낸후 초기화할때 사용
     public virtual void Initializ()
@@ -43,7 +66,7 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
         if (enemies.Length > 0)
         {
             //가장 가까운 적을 타켓으로 설정
-            currentTarget = enemies[0].transform;
+            currentTarget = enemies[0];
         }
         else
         {
