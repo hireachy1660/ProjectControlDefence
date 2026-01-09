@@ -7,9 +7,9 @@ namespace KCH
     {
         // private Queue<BaseEnemy>          // 풀링용 리스트 
 
-        public void SpawnEnemy(int _objNum)
+        public void SpawnEnemy(string _type)
         {
-            Debug.Log("SpawnEnemy" + _objNum);
+            Debug.Log("SpawnEnemy" + _type);
         }
     }
 

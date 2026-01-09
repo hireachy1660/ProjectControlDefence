@@ -9,9 +9,14 @@ public class CardManager : MonoBehaviour
     //public CardSelecteddelegate CardSelectedCallback
     //{ set { cardSelectedCallback = value; } }
 
+
+
+
     // 현재 뽑힌 카드들의 데이터 정보를 저장하는 리스트.
     public List<CardRawData> currentHandData = new List<CardRawData>();
+    [SerializeField]
     private const int MAX_SLOTS = 5;        // 항상 유지할 카드 갯수
+    [SerializeField]
     private const int REROLL_COST = 100;    // 리롤 비용 설정
 
     // 게임 시작 시 처음으로 5장의 카드를 뽑아 리스트로 반환한다.

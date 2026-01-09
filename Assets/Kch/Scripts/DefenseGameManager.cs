@@ -41,18 +41,18 @@ namespace KCH
         }
 
         // 유닛을 스폰하기 위해서는 리소스 메니저의 배열 내부의 번호와 해당 프리팹의 태그를 델리게이트 매개변수에 담아 사용)
-        private void SpawnUnit(int _objNum, string _tag)
+        private void SpawnUnit(string _type, string _tag)
         {
             switch(_tag)
             {
                 case "Enemy":
-                    enemyMng.SpawnEnemy(_objNum);
+                    enemyMng.SpawnEnemy(_type);
                     break;
                 case "Ally":
-                    allyMng.SpawnAlly(_objNum);
+                    allyMng.SpawnAlly(_type);
                     break;
                 case "Tower":
-                    towerMng.BuildTower(_objNum);
+                    towerMng.BuildTower(_type);
                     break;
 
 

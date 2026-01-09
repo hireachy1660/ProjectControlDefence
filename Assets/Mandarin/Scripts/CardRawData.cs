@@ -1,3 +1,4 @@
+using System.Xml;
 using UnityEngine;
 
 public enum ECardType
@@ -11,8 +12,8 @@ public class CardRawData   // 태스트용 데이터 클래스
 {
     public string cardName;
     public int cost;
-    public string prefabPath;   // 리소스폴더 내의 실제 파일 경로
     public Sprite cardIcon;
+    public ResourceManager.DicType type;
 
     public ECardType cardType;
 }
