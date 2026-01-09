@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Collections;
 using System;
+using Mono.Cecil;
 
 public class PathFinding : MonoBehaviour
 {
@@ -145,6 +146,13 @@ public class PathFinding : MonoBehaviour
     {
         Node currentNode = grid.NodeFromWorldPoint(_worldPosition);
         return currentNode.inUnit;
+    }
+
+    public bool CanUnitGrid(Vector3 _unitPos, float _unitSizeX, float _unitSizeZ)
+    {
+        Node currentNode = grid.NodeFromWorldPoint(_unitPos);
+        bool result = grid.CanUnitGrid(currentNode, _unitSizeX, _unitSizeZ);
+        return result;
     }
 
 }

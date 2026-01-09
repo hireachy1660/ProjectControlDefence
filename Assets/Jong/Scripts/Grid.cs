@@ -13,7 +13,8 @@ public class Grid : MonoBehaviour
     private Node[,] grid;
 
     private float nodeDiameter; // 노드 1개의 지름
-    int gridSizeX, gridSizeY;
+    private int gridSizeX, gridSizeY;
+    
 
     //public List<Node> path;
     private void Awake()
@@ -140,6 +141,36 @@ public class Grid : MonoBehaviour
         }
         return neighbours;
     }
-    
-   
+
+    public bool CanUnitGrid(Node _node,float _unitSizeX,float _unitSizeZ)
+    {
+        int sizeX = Mathf.RoundToInt(_unitSizeX / 2);
+        int sizeZ = Mathf.RoundToInt(_unitSizeZ / 2);
+        for (int x = -sizeX; x <= sizeX; ++x)
+        {
+            for (int y = -sizeZ; y <= sizeZ; ++y)
+            {
+                
+                int checkX = _node.gridX + x;
+                int checkY = _node.gridY + y;
+
+                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                {
+                    if(grid[checkX,checkY].inUnit)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+                
+            }
+        }
+        return true;
+    }
+
+
+
 }
