@@ -33,7 +33,7 @@ namespace KCH
             GameObject go = null;
             if(ResourceManager.Instance.EnemyPrefList.TryGetValue(_type,out go))
             {
-                Instantiate(go);    // 풀에 존재하는지 검사하는 로직 및 풀에서 제거하는 로직 필요
+                curGo = Instantiate(go);    // 풀에 존재하는지 검사하는 로직 및 풀에서 제거하는 로직 필요
                 curGo.transform.position = SpawnTrs[CurSpawnPos].transform.position;
 
                 curEnemyScript = curGo.GetComponent<EnemyUnit>();

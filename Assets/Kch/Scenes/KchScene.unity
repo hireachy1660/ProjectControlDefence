@@ -3339,7 +3339,10 @@ MonoBehaviour:
     - EnemyType: 0
       count: 10
       spawnInterval: 1
-    waveDelay: 20
+    - EnemyType: 0
+      count: 10
+      spawnInterval: 1
+    waveDelay: 1
 --- !u!4 &624181298
 Transform:
   m_ObjectHideFlags: 0
