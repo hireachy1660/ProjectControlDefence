@@ -1,53 +1,30 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI;
 
+// 업로드전
 public class UIManager : MonoBehaviour
 {
     [Header("Sub Managers")]
     [SerializeField] private CardManager cardLogicManager;  // 연산 담당
 
     [Header("UI References")]
-    [SerializeField] private GameObject cardPrefab = null;
-    [SerializeField] private Transform cardContainer = null;
-    [SerializeField] private GameObject shopPanel = null;
+    [SerializeField] private GameObject cardPrefab;
+    [SerializeField] private Transform cardContainer;
 
-    private void Awake()
-    {
-        // shopPanel 끄기 ( 켜져있을경우 대비)
-        if (shopPanel != null)
-        {
-            shopPanel.SetActive(false);
-        }
-    }
+    private const float ANIM_SPEED = 0.25f;     // 애니메이션 속도
 
     private void Start()
     {
-
         if (cardLogicManager == null)
         {
             Debug.LogError("UIManager에 CardLogicManager가 연결되지 않았습니다!");
             return;
         }
-        ShowShopUI();
+        InitHandUI();
     }
-    public void ShowShopUI()
-    {
-        if(shopPanel != null)
-        {
-            shopPanel.SetActive(true);  // shopPanel 활성화
-        }
-        InitHandUI();   // 랜덤카드 5장 생성
-    }    
+
     public void InitHandUI()
     {
-        // 기존 카드 싹 지우기 (가장 확실한 방법)
-        foreach (Transform child in cardContainer)
-        {
-            Destroy(child.gameObject);
-        }
-
         // CardManager에게 처음 가질 카드 5개 데이터를 요청
         List<CardRawData> initialCards = cardLogicManager.GetInitialHand();
 
@@ -62,16 +39,15 @@ public class UIManager : MonoBehaviour
             CreateCardUI(data);
         }
         Debug.Log("UI 카드 생성 완료");
-
     }
 
     public void CreateCardUI(CardRawData data)
     {
-        GameObject go = Instantiate(cardPrefab, cardContainer);
-        UICard ui = go.GetComponent<UICard>();
-        ui.Setup(data, this);
+        if (data == null) return;
+        GameObject newCardObj = Instantiate(cardPrefab, cardContainer);
+        UICard cardScript = newCardObj.GetComponent<UICard>();
+        cardScript.Setup(data, this);
     }
-
 
     // 랜덤카드 클릭 시 흐름 제어
     public void OnCardClicked(CardRawData data, UICard cardScript)
@@ -79,29 +55,13 @@ public class UIManager : MonoBehaviour
         // GameManager에게 이 카들 쓸 돈 있어? 있으면 소환 요청
         if (GameManager.Instance.TrySummonUnit(data))
         {
-            float animTime = 0.25f;
-            float cardWidth = 185f + 20f; // 너비 + 스패싱
-            int clickedIndex = cardScript.transform.GetSiblingIndex();
+            // 허락이 떨어졌을 때만 카드 교체 및 애니메이션 발생
+            // 새 카드 미리 생성(오른쪽 끝에 붙음)
+            CardRawData newData = cardLogicManager.GetRandomCardData();
+            CreateCardUI(newData);
 
-            // 1. 새 카드 미리 생성 (맨 오른쪽에 생김)
-            UICard nextCard = CreateCardUI_Return(cardLogicManager.GetRandomCardData());
-
-            // 2. 새 카드는 화면 밖(오른쪽)에서 대기 (SetOffset 사용)
-            nextCard.SetOffset(cardWidth);
-
-            // 3. 클릭된 카드 뒤에 있는 모든 카드(방금 만든 새 카드 포함!)를 동시에 밀기
-            for (int i = clickedIndex + 1; i < cardContainer.childCount; i++)
-            {
-                UICard otherCard = cardContainer.GetChild(i).GetComponent<UICard>();
-                if (otherCard != null) StartCoroutine(otherCard.Co_MoveLeft(cardWidth, animTime));
-            }
-
-            // 4. 클릭된 카드는 제자리에서 사라짐
-            StartCoroutine(cardScript.Co_FadeOutAndHide(animTime));
-
-            // 5. 애니메이션이 끝난 후 죽은 카드 파괴 및 레이아웃 최종 정리
-            StartCoroutine(Co_CleanupLayout(cardScript, animTime));
-
+            // 현재 클릭된 카드의 축소 애니메이션 시작
+            StartCoroutine(cardScript.Co_ShrinkAndDestroy(ANIM_SPEED));
         }
         else
         {
@@ -130,26 +90,4 @@ public class UIManager : MonoBehaviour
         }
 
     }
-   
-    private IEnumerator Co_CleanupLayout(UICard deadCard, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        // 여기서 비로소 죽은 카드를 지웁니다. 
-        // 그러면 6개였던 카드가 5개가 되면서 레이아웃이 착 달라붙습니다.
-        Destroy(deadCard.gameObject);
-
-        yield return null; // 파괴된 프레임 대기
-        LayoutRebuilder.ForceRebuildLayoutImmediate(cardContainer as RectTransform);
-    }
-    private UICard CreateCardUI_Return(CardRawData data)
-    {
-        GameObject go = Instantiate(cardPrefab, cardContainer);
-        UICard ui = go.GetComponent<UICard>();
-        ui.Setup(data, this);
-        // 생성 직후 레이아웃을 갱신해야 정확한 SiblingIndex와 위치가 잡힙니다.
-        LayoutRebuilder.ForceRebuildLayoutImmediate(cardContainer as RectTransform);
-        return ui;
-    }
-
 }

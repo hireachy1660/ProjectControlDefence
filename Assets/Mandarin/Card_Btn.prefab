@@ -363,7 +363,6 @@ MonoBehaviour:
   nameText: {fileID: 8497208207981827888}
   costText: {fileID: 6582968385356861723}
   iconImage: {fileID: 9127189053500234921}
-  visualRoot: {fileID: 8062406935007220437}
 --- !u!114 &6838968016964093901
 MonoBehaviour:
   m_ObjectHideFlags: 0
