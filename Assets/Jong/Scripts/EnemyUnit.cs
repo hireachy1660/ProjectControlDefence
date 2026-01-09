@@ -359,10 +359,11 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         StopCoroutine("FollowPath");
         float attackDelay = 5f;
         float time = attackDelay;
+        float dist = 0f;
         isChase = false;
         while(true)
         {
-            
+            dist = (transform.position - target.position).sqrMagnitude;
             time += Time.deltaTime;
             if(time>=attackDelay)
             {
@@ -378,13 +379,20 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             }
             state = EnemyState.Idle;
             UpdateAnimation(state);
-            float dist = (transform.position - target.position).sqrMagnitude;
             if (dist > attackRange * attackRange)
             {
                 break;
             }
             yield return null;
         }
-        CheckChase();
+        if (dist > detectionRange * detectionRange)
+        {
+            target = null;
+            PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
+        }
+        else
+        {
+            CheckChase();
+        }
     }
 }
