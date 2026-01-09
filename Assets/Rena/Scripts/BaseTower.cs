@@ -16,6 +16,14 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
     protected float nextAttackTime;
     protected Transform currentTarget;
 
+    public enum TowerEnum
+    { ARCHER, CANON, MORTAR }
+    [SerializeField]
+    protected TowerEnum type;
+
+    public TowerEnum Type
+    {  get { return type; } }
+
     //타워 매니저가 풀링에서 꺼낸후 초기화할때 사용
     public virtual void Initializ()
     {

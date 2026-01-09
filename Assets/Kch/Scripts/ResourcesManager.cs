@@ -9,13 +9,13 @@ namespace KCH
 
         // 아래의 유닛 및 타워 리소스의 자료형은 각 베이스 스크립트 형으로 변경할 것
         [SerializeField]
-        private List<GameObject> towerPrefList = new List<GameObject>();
+        private List<BaseTower> towerPrefList = new List<BaseTower>();
         [SerializeField]
         private List<GameObject> enemyPrefList = new List<GameObject>();
         [SerializeField]
         private List<GameObject> allyPrefList = new List<GameObject>();
 
-        public List<GameObject> TowerPrefList
+        public List<BaseTower> TowerPrefList
         { get { return towerPrefList; } }
         public List<GameObject> EnemyPrefList
         { get { return enemyPrefList; } }
@@ -44,7 +44,7 @@ namespace KCH
                         Debug.Log("allyPrefList.Add(go.GetComponent<BaseEnemy>)");
                         break;
                     case "Tower":
-                        //allyPrefList.Add(go.GetComponent<BaseTower>);
+                        towerPrefList.Add(go.GetComponent<BaseTower>());
                         Debug.Log("allyPrefList.Add(go.GetComponent<BaseTower>)");
                         break;
                     case null:
