@@ -19,7 +19,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     [Header("거리 및 속도 설정")]
     public float detectionRange = 10f;
-    public float attackRange = 2f;
+    public float attackRange = 5f;
     public float chaseSpeed = 10f;
 
    
@@ -33,6 +33,10 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     [SerializeField]
     private Transform[] playerUnitList;
+
+    [SerializeField]
+    private Transform[] towerUnitList;
+    [SerializeField]
     private Transform target;
 
     private EnemyState state = EnemyState.Idle;
@@ -56,6 +60,15 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
         //mr = transform.GetComponentInChildren<MeshRenderer>();
         animator = GetComponent<Animator>();
+    }
+
+    private void Update()
+    {
+        UpdateAnimation(state);
+        if(target != null && state == EnemyState.Attack)
+        {
+            Attack();
+        }
     }
     private Vector3 RandomTargetPosition() // 같은 목적지를 받을 경우 뭉치는 현상이 발생하기 때문에 분산시키기 위해 offset을 넣어준다.
     {
@@ -99,15 +112,26 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 CheckChase();
             }
 
-            if (Vector3.Distance(transform.position,baseCampPos) <= 5f)
+            if (Vector3.Distance(transform.position,baseCampPos) <= 1f)
             {
+                PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
+                while(isUnitGrid)
+                {
+                    currentWaypoint -= (transform.position - currentWaypoint) * 1f;
+                    PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
+                    if (!isUnitGrid) break;
+                }
+                float endspeed = isChase ? chaseSpeed : normalSpeed;
+                state = EnemyState.Move;
+                transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, endspeed * Time.deltaTime);
+
+                Turn(transform.position, currentWaypoint);
                 state = EnemyState.Idle;
-                UpdateAnimation(state);
+                //UpdateAnimation(state);
 
 
                 //mr.material.color = Color.cyan;
-                yield return null;
-                continue;
+                yield break; 
             }
             if(Vector3.Distance(transform.position,currentWaypoint)<0.1f)
             {
@@ -123,11 +147,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
             //Vector3 separationVector = GetSeparationVector();
             //transform.position += separationVector * separateForce * Time.deltaTime;
-            PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
-            if (isUnitGrid)
-            {
-                currentWaypoint -= (transform.position - currentWaypoint) * 2f;
-            }
+            
             Turn(transform.position, currentWaypoint);
             //if (currentWaypoint == path[^1] && Vector3.Distance(transform.position, target.position) <= minTargetDistance)
             //{
@@ -173,8 +193,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     private void CheckChase()
     {
-        if (playerUnitList == null) return;
-        foreach(Transform tr in playerUnitList)
+        if (playerUnitList == null || towerUnitList == null) return;
+        foreach(Transform tr in towerUnitList)
         {
             if (tr == null || !tr.gameObject.activeInHierarchy) continue;
             //float dist = Vector3.Distance(transform.position, tr.position);
@@ -189,6 +209,22 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 break;
             }
            
+        }
+        foreach (Transform tr in playerUnitList)
+        {
+            if (tr == null || !tr.gameObject.activeInHierarchy) continue;
+            //float dist = Vector3.Distance(transform.position, tr.position);
+            float dist = (transform.position - tr.position).sqrMagnitude;
+            if (dist <= detectionRange * detectionRange)
+            {
+                isChase = true;
+                state = EnemyState.Chase;
+                target = tr;
+                StopCoroutine("FollowPath");
+                StartCoroutine("Chase");
+                break;
+            }
+
         }
     }
 
@@ -214,26 +250,26 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 state = EnemyState.Attack;
                 // 공격 사거리에 들어왔으므로 이동 멈춤 or 공격 로직 수행
                 // 여기서는 예시로 이동만 멈추고 대기
-
+                Attack();
                 //mr.material.color = Color.red;
-                UpdateAnimation(state);
+                //UpdateAnimation(state);
 
 
-                yield return new WaitForSeconds(1.5f); // 데미지 처리하는 곳에서 Update를 한번 돌릴 수 있도록 대기 시간을 가지는 것
+                yield return new WaitForSeconds(1f); // 데미지 처리하는 곳에서 Update를 한번 돌릴 수 있도록 대기 시간을 가지는 것
                 continue;
             }
             else if(dist <= detectionRange * detectionRange)
             {
                 state = EnemyState.Chase;
                 //mr.material.color = Color.yellow;
-                UpdateAnimation(state);
+                //UpdateAnimation(state);
             }
             else
             {
                 target = null;
                 state = EnemyState.Move;
                 //mr.material.color = Color.white;
-                UpdateAnimation(state);
+                //UpdateAnimation(state);
 
                 break;
             }
@@ -245,7 +281,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 timer = 0f;
                 // 현재 위치에서 타겟의 현재 위치로 경로 요청
                 
-                PathRequestManager.RequestPath(transform.position, SetTargetPos(target.position), OnPathFound);
+                PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
             }
 
             // 3. 이동 로직 (FollowPath와 유사하지만 while 루프 내부에 존재)
@@ -346,32 +382,50 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 time = 0f;
                 playerUnitList = gameObjectList.playerUnitList();
                 enemyUnitList = gameObjectList.enemyUnitList();
+                towerUnitList = gameObjectList.towerUnitList();
             }
             yield return null;
         }
     }
 
-    private Vector3 SetTargetPos(Vector3 _targetPos)
+    //private Vector3 SetTargetPos(Vector3 _targetPos)
+    //{
+    //    Vector3 targetPos = _targetPos; 
+    //    for(int x = -2; x <= 2; ++x)
+    //    {
+    //        for(int y = -2; y <=2; ++y)
+    //        {
+    //            PathRequestManager.CheckUnitGrid(new Vector3(_targetPos.x + x, 0f, _targetPos.z + y), out isUnitGrid);
+    //            if(!isUnitGrid)
+    //            {
+    //                return targetPos - (transform.position - targetPos);
+    //            }
+    //        }
+    //    }
+
+    //    return targetPos - (transform.position - targetPos);
+    //}
+    private void Attack()
     {
-        Vector3 targetPos = _targetPos; 
-        for(int x = -2; x <= 2; ++x)
+        
+        StopAllCoroutines();
+        Turn(transform.position, target.position);
+        float dist = (transform.position - target.position).sqrMagnitude;
+        
+        if (dist > detectionRange * detectionRange)
         {
-            for(int y = -2; y <=2; ++y)
-            {
-                PathRequestManager.CheckUnitGrid(new Vector3(_targetPos.x + x, 0f, _targetPos.z + y), out isUnitGrid);
-                if(!isUnitGrid)
-                {
-                    return targetPos - (transform.position - targetPos);
-                }
-            }
+            target = null;
+            state = EnemyState.Idle;
+            isChase = false;
+            PathRequestManager.RequestPath(transform.position, baseCamp.position, OnPathFound);
         }
 
-        return targetPos - (transform.position - targetPos);
     }
-
     public void TakeDamage(float damage) // 객체에 데미지 처리
     {
         hp -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + hp);
     }
+
+
 }
