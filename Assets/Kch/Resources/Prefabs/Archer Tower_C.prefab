@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3249141405454330526}
   - component: {fileID: 6368045687182651674}
-  - component: {fileID: 4529953430946805626}
+  - component: {fileID: 8286374533816057700}
   m_Layer: 6
   m_Name: Archer Tower_C
   m_TagString: Tower
@@ -57,16 +57,13 @@ MonoBehaviour:
   projectilePrefab: {fileID: 8129354329158709297, guid: e5ef1570f34f3174ba6caf846f2af2bc, type: 3}
   firePoint: {fileID: 2460708998027136656}
   type: 0
---- !u!61 &4529953430946805626
-BoxCollider2D:
+--- !u!65 &8286374533816057700
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2175516867733305656}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -75,34 +72,12 @@ BoxCollider2D:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
   m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3090243852950210062
 GameObject:
   m_ObjectHideFlags: 0

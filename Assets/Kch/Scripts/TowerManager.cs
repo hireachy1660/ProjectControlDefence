@@ -13,6 +13,8 @@ namespace KCH
 
         [SerializeField]    // 초기에 대상 레이어(바닥)를 선택 필수
         private LayerMask flootlayer;
+        [SerializeField]
+        private Material[] matOfSatate; 
 
 
 
@@ -41,7 +43,12 @@ namespace KCH
 
         private IEnumerator BuildMode()
         {
+            if(curBuildingTower == null)
+                yield break;
+
             curBuildingTower.enabled = false;
+            MeshRenderer mr = curBuildingTower.gameObject.GetComponentInChildren<MeshRenderer>();
+            bool isvaildPos = false;
 
             while (curBuildingTower != null)
             {
@@ -50,17 +57,34 @@ namespace KCH
                 if (Physics.Raycast(ray, out hit, 50f, flootlayer))
                 {
                     curBuildingTower.transform.position = hit.point + (Vector3.up *1f);
+                    PathRequestManager.CanUnitGrid(hit.point, curBuildingTower.transform.lossyScale.x, curBuildingTower.transform.lossyScale.z, out isvaildPos);
+                    if (isvaildPos)
+                    {
+                        mr.material.color = Color.green;
+                    }
+                    else
+                    {
+                        mr.material.color = Color.red;
+                    }
                 }
-                if (Input.GetMouseButtonDown(0))
+                    yield return null;
+
+                if (Input.GetMouseButtonDown(0) && isvaildPos)
                 {
+
+                    curBuildingTower.enabled = true;
+                    mr.material.color = Color.white;
+
                     break;
                 }
                 else if (Input.GetMouseButtonDown(1))
                 {
                     curBuildingTower.gameObject.SetActive(false);
+                    mr.material.color = Color.white;
+                    curBuildingTower.transform.position = (Vector3.down * 30f);
+                    
                     break;
                 }
-                    yield return null;
             }
             curBuildingTower = null;
             yield break;
