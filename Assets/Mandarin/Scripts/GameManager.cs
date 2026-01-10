@@ -7,6 +7,13 @@ public class GameManager :  MonoBehaviour
 {
     public static GameManager Instance;     // ½Ì±ÛÅæ
 
+    public delegate void SpawnUnitdelegate(IDamageable _target);
+
+    private SpawnUnitdelegate spawnUnitCallback;
+
+    public SpawnUnitdelegate SpawnUnitCallback
+    { set { spawnUnitCallback = value; } get { return spawnUnitCallback; } }
+
     #region ¸Þ´ÏÀú ¸â¹ö º¯¼ö
     [Header("Managers")] 
     [SerializeField]
@@ -37,6 +44,7 @@ public class GameManager :  MonoBehaviour
         SetNexuses();
         uiMng.UpdateGold(currentGold);
         StartCoroutine(GetGoldCoroutine(secPerGold));
+        SpawnUnitCallback = uiMng.SetHPBar;
     }
     #endregion
 

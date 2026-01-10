@@ -19,9 +19,15 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
+
     public void UpdateGold(int _curGold)
     {
         curGold = _curGold;
         curGoldTMP.text = curGold.ToString();
+    }
+
+    public void SetHPBar(IDamageable _target)
+    {
+        hpBarMng
     }
 }
