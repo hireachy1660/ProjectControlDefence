@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 // 업로드전
-public class UIManager : MonoBehaviour
+public class UICardManager : MonoBehaviour
 {
     [Header("Sub Managers")]
     [SerializeField] private CardManager cardLogicManager;  // 연산 담당

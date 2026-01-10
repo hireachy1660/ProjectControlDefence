@@ -349,6 +349,7 @@ GameObject:
   - component: {fileID: 40423897}
   - component: {fileID: 40423896}
   - component: {fileID: 40423895}
+  - component: {fileID: 40423898}
   m_Layer: 5
   m_Name: shop_Panel
   m_TagString: Untagged
@@ -441,6 +442,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 40423893}
   m_CullTransparentMesh: 1
+--- !u!114 &40423898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 40423893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e74ee5b575a90b04892a8984b80e57c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UICardManager
+  cardLogicManager: {fileID: 0}
+  cardPrefab: {fileID: 0}
+  cardContainer: {fileID: 1468177968}
 --- !u!1 &77239834
 GameObject:
   m_ObjectHideFlags: 0
@@ -2729,7 +2745,6 @@ GameObject:
   m_Component:
   - component: {fileID: 375733922}
   - component: {fileID: 375733924}
-  - component: {fileID: 375733923}
   m_Layer: 0
   m_Name: BaseCamp
   m_TagString: Untagged
@@ -2754,29 +2769,6 @@ Transform:
   - {fileID: 2144895409}
   m_Father: {fileID: 1094984983}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &375733923
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 375733921}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7d660e51123b8f4cae8a8f57ec456d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ArcherTower
-  health: 100
-  range: 10
-  attackRate: 10
-  damage: 10
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  projectilePrefab: {fileID: 2746712879651651757, guid: d59c93aebca30ff44964634f1e1c65a8, type: 3}
-  firePoint: {fileID: 7297345920885853317, guid: d59c93aebca30ff44964634f1e1c65a8, type: 3}
-  myCollider: {fileID: 1052632370}
-  type: 0
 --- !u!114 &375733924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3218,9 +3210,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621cc181ee669404f9e655eb3e8ded14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  cardLogicManager: {fileID: 1468177967}
-  cardPrefab: {fileID: 2020276494377106287, guid: 2f26097d3027fc44f95072b839ff3cfb, type: 3}
-  cardContainer: {fileID: 791217060}
 --- !u!114 &566518076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6492,7 +6481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c09316a1b70279240a93ced65440e181, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TGameManager
-  nexuss: []
+  nexuses: []
   allyMng: {fileID: 798412922}
   enemyMng: {fileID: 168113694}
   towerMng: {fileID: 1583293863}
