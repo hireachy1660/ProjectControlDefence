@@ -28,6 +28,6 @@ public class UIManager : MonoBehaviour
 
     public void SetHPBar(IDamageable _target)
     {
-        hpBarMng
+        hpBarMng.SetHPBar(_target);
     }
 }
