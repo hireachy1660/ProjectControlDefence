@@ -1,5 +1,7 @@
  using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+
 
 public class GameManager :  MonoBehaviour
 {
@@ -16,11 +18,13 @@ public class GameManager :  MonoBehaviour
     [SerializeField]
     private KCH.TowerManager towerMng = null;
     [SerializeField]
-    private CardManager cardMng = null;
+    private UIManager uiMng = null;
     #endregion
 
     [SerializeField] private int currentGold = 1000;
     //[SerializeField] private int rerollCost = 100;      // 리롤 비용
+    [SerializeField]
+    private int secPerGold = 1;
 
     // 객체가 생성될 때(Awake) 자기 자신을 Instance에 할당한다.
     private void Awake() => Instance = this;
@@ -31,6 +35,8 @@ public class GameManager :  MonoBehaviour
     private void Start()
     {
         SetNexuses();
+        uiMng.UpdateGold(currentGold);
+        StartCoroutine(GetGoldCoroutine(secPerGold));
     }
     #endregion
 
@@ -47,6 +53,7 @@ public class GameManager :  MonoBehaviour
 
         // 골드 차감
         currentGold -= data.cost;
+        uiMng.UpdateGold(currentGold);
 
         SpawnUnit(data.cardName, data.type);
         //    // 실제 필드에서 유닛,타워,힐등 소환(Resources에서 로드 등)
@@ -76,6 +83,17 @@ public class GameManager :  MonoBehaviour
     public void SpendGold(int amount)
     {
         currentGold -= amount;
+        uiMng.UpdateGold(currentGold);
+    }
+
+    private IEnumerator GetGoldCoroutine(int _goldPerSecond)
+    {
+        while(true)
+        {
+            currentGold += _goldPerSecond;
+            uiMng.UpdateGold(currentGold);
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     private void SetNexuses()
@@ -99,6 +117,7 @@ public class GameManager :  MonoBehaviour
     private void GameOver()
     {
         Debug.Log("Game Is Over");
+        StopCoroutine(GetGoldCoroutine(secPerGold));
     }
 
 }

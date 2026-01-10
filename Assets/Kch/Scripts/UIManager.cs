@@ -1,16 +1,27 @@
+using System.Runtime.CompilerServices;
+using TMPro;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("Child Managers")]
+    [SerializeField]
+    private UICardManager cardMng = null;
+    // 유아이 미니맵 매니저, 
+    [SerializeField]
+    private TextMeshProUGUI curGoldTMP = null;
+    [SerializeField]
+    private HPBarManager hpBarMng = null;
 
-    // Update is called once per frame
-    void Update()
+    private int curGold = 0;
+
+    #region 라이프 사이클
+
+    #endregion
+
+    public void UpdateGold(int _curGold)
     {
-        
+        curGold = _curGold;
+        curGoldTMP.text = curGold.ToString();
     }
 }
