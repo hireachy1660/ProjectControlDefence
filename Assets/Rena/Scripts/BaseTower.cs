@@ -3,7 +3,15 @@ using UnityEngine;
 public abstract class BaseTower : MonoBehaviour, IDamageable
 {
     [Header("Base Settings")]
-    public float health = 100f;
+    #region 인터페이스 상속 변수 프로퍼티
+    [SerializeField]
+    private float maxHealth = 100f;
+    public float MaxHealth
+    { get { return maxHealth; } }
+    private float curHealth = 100f;
+    public float CurHealth
+    { get { return curHealth; } }
+    #endregion
     public float range = 5f;
     public float attackRate = 10f;
     public float damage = 10f;
@@ -18,6 +26,7 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
 
     protected float nextAttackTime;
     protected Collider currentTarget;
+
 
 
     public enum TowerEnum
@@ -42,7 +51,7 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
     //타워 매니저가 풀링에서 꺼낸후 초기화할때 사용
     public virtual void Initializ()
     {
-        health = 100f;  // 기본 체력 초기화
+        curHealth = MaxHealth;  // 기본 체력 초기화
         nextAttackTime = 0f;
     }
 
@@ -79,8 +88,8 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
 
     public virtual void TakeDamage(float amount)
     {
-        health -= amount;
-        if (health <= 0) Die();
+        curHealth -= amount;
+        if (curHealth <= 0) Die();
     }
 
     protected virtual void Die()
