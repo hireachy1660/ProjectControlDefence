@@ -168,14 +168,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc95722924be85644ab66174dd18ebe3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonTower
-  health: 100
+  maxHealth: 100
+  curHealth: 100
   range: 5
   attackRate: 5
   damage: 10
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
-  projectilePrefab: {fileID: 5688207321663580933, guid: d2155d430c5cdc54bb218d730fa33484, type: 3}
+  projectilePrefab: {fileID: 3384641141970733364, guid: 8e9d8dcf9bd537a4cbee18c9af5accec, type: 3}
   firePoint: {fileID: 5978554914198889299}
   myCollider: {fileID: 1187678529871263576}
   type: 1

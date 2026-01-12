@@ -18,13 +18,16 @@ public class Projectile : MonoBehaviour
     private Vector3 shootDirection;
     private List<GameObject> hitEnemies = new List<GameObject>();
 
-    public void Setup(Collider _target, float _damage, bool _useArc)
+    private IDamageable owner = null;
+
+    public void Setup(Collider _target, float _damage, bool _useArc, IDamageable _owner)
     {
         target = _target;
         damage = _damage;
         useArc = _useArc;
         startPos = transform.position;
         progress = 0;
+        owner = _owner;
 
         if (target != null)
         {
@@ -93,10 +96,11 @@ public class Projectile : MonoBehaviour
 
     void ApplySingleDamage()
     {
+        //Debug.Log(target);
         // 타겟이 이미 죽었을 수도 있으므로 OverlapPoint 등으로 체크하는 것이 더 정확할 수 있습니다.
         if (target != null)
         {
-            target.GetComponent<IDamageable>()?.TakeDamage(damage);
+            target.GetComponent<IDamageable>()?.TakeDamage(damage, owner);
         }
         else
         {
@@ -104,7 +108,7 @@ public class Projectile : MonoBehaviour
             Collider[] hit = Physics.OverlapSphere(transform.position, 0.1f);
             if (hit.Length > 0&& hit[0].CompareTag("Enemy"))
             {
-                hit[0].GetComponent<IDamageable>()?.TakeDamage(damage);
+                hit[0].GetComponent<IDamageable>()?.TakeDamage(damage, owner);
             }
         }
     }
@@ -117,13 +121,14 @@ public class Projectile : MonoBehaviour
         {
             if (hit.CompareTag("Enemy"))
             {
-                hit.GetComponent<IDamageable>()?.TakeDamage(damage);
+                hit.GetComponent<IDamageable>()?.TakeDamage(damage, owner);
             }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log(other.gameObject.name);
         if (other.CompareTag("Tower")) return;
 
         if (other.CompareTag("Enemy"))
@@ -135,13 +140,13 @@ public class Projectile : MonoBehaviour
             {
                 if (!hitEnemies.Contains(other.gameObject))
                 {
-                    damageable.TakeDamage(damage);
+                    damageable.TakeDamage(damage, owner);
                     hitEnemies.Add(other.gameObject);
                 }
             }
             else if (!isExplosive) // 아처 (날아가다 직접 부딪힌 경우)
             {
-                damageable.TakeDamage(damage);
+                damageable.TakeDamage(damage, owner);
                 Destroy(gameObject);
             }
         }

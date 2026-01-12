@@ -12,7 +12,7 @@ public class ArcherTower : BaseTower
         if (projectile != null)
         {
             //아처 특유의 투사체 설정 ( 직선 혹은 낯은 곡선)
-            projectile.Setup(currentTarget, damage, false);
+            projectile.Setup(currentTarget, damage, false, this);
         }
     }
 }   

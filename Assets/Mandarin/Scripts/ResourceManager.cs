@@ -83,7 +83,7 @@ public class ResourceManager : MonoBehaviour
                     if (!go.TryGetComponent<EnemyUnit>(out en))
                         continue;
 
-                    enemyPrefList.Add(EnemyUnitManager.EEnemyType.Enemy.ToString(), go);    // 추후 에너미 베이스 클래스에 이넘을 가지는 시리얼라이즈 필드 추가 필요
+                    enemyPrefList.TryAdd(EnemyUnitManager.EEnemyType.Enemy.ToString(), go);    // 추후 에너미 베이스 클래스에 이넘을 가지는 시리얼라이즈 필드 추가 필요
                     
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseEnemy>)");
                     break;

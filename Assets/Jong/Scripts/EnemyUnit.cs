@@ -395,6 +395,9 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         if (_target != null)
         {
             target = _target.transform;
+            StopAllCoroutines();
+            isChase = true;
+            StartCoroutine("Chase");
             //float originTarget = (target.position - transform.position).sqrMagnitude;
             //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
             //if (originTarget > newTarget)
