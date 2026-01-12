@@ -31,5 +31,11 @@ public class HPBar : MonoBehaviour
     public void SetCurHp()
     {
         hpBar.fillAmount = myTarget.CurHealth / myTarget.MaxHealth;
+        if(myTarget.CurHealth <= 0f)
+        {
+            offHpBarCallback?.Invoke(this);
+        }
     }
+
+    
 }
