@@ -1,9 +1,13 @@
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
-// 업로드전
 public class UICardManager : MonoBehaviour
 {
+    [Header("UI Containers")]
+    [SerializeField] private GameObject shopPanel;
+
     [Header("Sub Managers")]
     [SerializeField] private CardManager cardLogicManager;  // 연산 담당
 
@@ -20,6 +24,11 @@ public class UICardManager : MonoBehaviour
             Debug.LogError("UIManager에 CardLogicManager가 연결되지 않았습니다!");
             return;
         }
+        if(shopPanel != null)
+        {
+            shopPanel.SetActive(true);
+        }
+        // 카드 초기화 실행
         InitHandUI();
     }
 
@@ -55,13 +64,14 @@ public class UICardManager : MonoBehaviour
         // GameManager에게 이 카들 쓸 돈 있어? 있으면 소환 요청
         if (GameManager.Instance.TrySummonUnit(data))
         {
-            // 허락이 떨어졌을 때만 카드 교체 및 애니메이션 발생
-            // 새 카드 미리 생성(오른쪽 끝에 붙음)
-            CardRawData newData = cardLogicManager.GetRandomCardData();
-            CreateCardUI(newData);
+            // 1. 현재 클릭된 카드의 물리적 클릭을 즉시 차단 (잔상/중복 방지)
+            cardScript.GetComponent<Button>().interactable = false;
 
-            // 현재 클릭된 카드의 축소 애니메이션 시작
+            // 2. 애니메이션 시작
             StartCoroutine(cardScript.Co_ShrinkAndDestroy(ANIM_SPEED));
+
+            // 3. 카드가 거의 사라졌을 때(지연 후) 새 카드 생성
+            StartCoroutine(Co_DelayedCreate(ANIM_SPEED * 1f));
         }
         else
         {
@@ -88,6 +98,12 @@ public class UICardManager : MonoBehaviour
             // 실패 시 알림( 흔들기연출 할꽈말꽈)
             Debug.Log("금액이 부족하여 리롤할 수 없습니다.");
         }
+    }
 
+    private IEnumerator Co_DelayedCreate(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        CardRawData newData = cardLogicManager.GetRandomCardData();
+        CreateCardUI(newData);
     }
 }

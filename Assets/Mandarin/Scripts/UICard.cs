@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-// 업로드전 
 // 개별 UI 표현 및 동작 - 유닛 단위 UI 스크립트, 클릭이벤트, 애니메이션등 보여지는것에 집중
 public class UICard : MonoBehaviour
 {
@@ -51,21 +50,33 @@ public class UICard : MonoBehaviour
     {
         LayoutElement layout = GetComponent<LayoutElement>();
         CanvasGroup cg = GetComponent<CanvasGroup>();
-        float startWidth = 210f;    // 기존 너비값
+
+        // 현재 실제 너비를 시작점으로 잡기( 고정값 210f보다 안전함 )
+        float startWidth = layout.preferredWidth;    
         float elapsed = 0;
+
+        // 중복 계산 방지를 위해 유연한 너비값을 미리 0으로 셋팅
+        if(layout != null)
+        {
+            layout.flexibleWidth = 0;
+            layout.minWidth = 0;
+        }
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float percent = elapsed / duration;
-            float smoothPercent = Mathf.Lerp(0, 1, percent);
+
+            //float smoothPercent = Mathf.Lerp(0, 1, percent);
+            //float smoothPrecent = Mathf.Sin(percent * Mathf.PI * 0.5f);
+
+            // EaseOut 큐빅 공식을 사용하면 끝으로 갈수록 부드러워진다.
+            float smoothPercent = 1 - Mathf.Pow(1 - percent, 3);
 
             if (layout != null)
             {
-                // 시작너비에서 0까지 서서 줄이기
-                float currentWidth = Mathf.Lerp(startWidth, 0, smoothPercent);
-                layout.preferredWidth = currentWidth;
-                layout.minWidth = currentWidth;
+                // 너비를 줄여서 옆 카드들을 당김
+                layout.preferredWidth = Mathf.Lerp(startWidth, 0, smoothPercent);
             }
             if(cg != null)
             {
@@ -88,4 +99,5 @@ public class UICard : MonoBehaviour
         }
         cg.alpha = 1;
     }
+
 }
