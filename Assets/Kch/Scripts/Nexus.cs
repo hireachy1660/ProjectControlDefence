@@ -27,7 +27,7 @@ namespace KCH
             curHealth = maxHealth;
         }
 
-        public void TakeDamage(float _dmg)
+        public void TakeDamage(float _dmg, IDamageable _target)
         {
             curHealth -= (int)_dmg;
             if (curHealth <= 0 )

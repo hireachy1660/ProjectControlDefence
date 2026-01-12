@@ -359,7 +359,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             yield return null;
         }
     }
-    public void TakeDamage(float damage) 
+    public void TakeDamage(float damage, IDamageable _target) 
     {
         curHealth -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
