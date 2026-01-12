@@ -14,12 +14,23 @@ namespace KCH
 
 
         [SerializeField]
-        private int hp = 10;
+        private float maxHealth = 100f;
+        private float curHealth = 100f;
+
+        public float MaxHealth
+        { get { return maxHealth; } }
+        public float CurHealth
+        { get { return curHealth; } }
+
+        private void OnEnable()
+        {
+            curHealth = maxHealth;
+        }
 
         public void TakeDamage(float _dmg)
         {
-            hp -= (int)_dmg;
-            if (hp <= 0 )
+            curHealth -= (int)_dmg;
+            if (curHealth <= 0 )
             {
                 nexusDestroyCallback?.Invoke(this);
                 Destroy(this);
