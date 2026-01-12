@@ -129,9 +129,9 @@ GameObject:
   m_Component:
   - component: {fileID: 657960}
   - component: {fileID: 657959}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BaseCamp
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1292,7 +1292,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 490669068}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3136,7 +3136,7 @@ GameObject:
   - component: {fileID: 1638832980}
   - component: {fileID: 1638832979}
   - component: {fileID: 1638832978}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
