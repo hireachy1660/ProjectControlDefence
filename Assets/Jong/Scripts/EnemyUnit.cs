@@ -27,14 +27,21 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     private float attackRange = 2.5f;
     private  float attackDelay = 10f;
     private float attackTime = 0f;
-    private int hp = 100;
+    
     private float dmg = 5f;
 
     private EnemyState state = EnemyState.Idle;
     private EnemyState lastState = EnemyState.Idle;
     //private MeshRenderer mr = null;
     private Animator animator;
+    [SerializeField]
+    private float maxHealth = 100f;
+    private float curHealth = 100f;
 
+    public float MaxHealth
+    { get { return maxHealth; } }
+    public float CurHealth
+    { get { return curHealth; } }
 
     // ¸ñÀûÁö
     [SerializeField]
@@ -77,6 +84,11 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             }
         }
         return false;
+    }
+
+    private void OnEnable()
+    {
+        curHealth = maxHealth;
     }
 
     private void Start()
@@ -349,8 +361,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage) 
     {
-        hp -= (int)damage;
-        Debug.Log("Name : " + gameObject.name + ",Hp : "  + hp);
+        curHealth -= (int)damage;
+        Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
     }
 
     private IEnumerator AttackCoroutine()
