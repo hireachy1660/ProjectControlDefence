@@ -53,12 +53,12 @@ public class UIManager : MonoBehaviour
     public void SetWaveEnemyCount(int  _count)
     {
         allEnemyInWave = _count;
-        WaveEnemyCount.text = allEnemyInWave.ToString();
+        WaveEnemyCount.text = "Left Enemy is :" + remaining + " / " + allEnemyInWave;
     }
 
     public void UpdataEnemyCount()
     {
         remaining++;
-        WaveEnemyCount.text = "Left Enemy if :" + remaining + " / " + allEnemyInWave;
+        WaveEnemyCount.text = "Left Enemy is :" + remaining + " / " + allEnemyInWave;
     }
 }
