@@ -3,8 +3,14 @@ using UnityEngine;
 using static EnemyUnit;
 using static UnityEngine.GraphicsBuffer;
 
-public class PlayerUnit : MonoBehaviour
+public class PlayerUnit : MonoBehaviour, IDamageable
 {
+    public delegate void DeadCallback(PlayerUnit _dead);
+    private DeadCallback setDeadCallback = null;
+    public DeadCallback SEtDeadCallback
+    {
+        set { setDeadCallback = value; }
+    }
     public enum UnitState
     {
         Idle,
@@ -13,48 +19,65 @@ public class PlayerUnit : MonoBehaviour
         Attack,
         Die
     }
-    private float normalSpeed = 5f;
     private Vector3[] path;
     private int targetIndex;
-
+    
     private bool isChase = false;
-
-    [Header("거리 및 속도 설정")]
-    public float detectionRange = 10f;
-    public float attackRange = 5f;
-    public float chaseSpeed = 10f;
-
-
-
-
-    [SerializeField]
-    private GameObjectList gameObjectList;
-    private Transform[] playerUnitList;
-    private Vector3 targetPos;
-
-    //private UnitState state = UnitState.Idle;
-    private MeshRenderer mr = null;
-
-    private Transform[] enemyUnitList;
     [SerializeField]
     private Transform target;
-    private float separateRange = 2f;
-    private float separateForce = 25f;
-
-    //private Animator animator;
     private Camera mainCam;
     public bool shouldMove = false;
     private bool isUnitGrid = false;
+
+    private float normalSpeed = 5f;
+    private float chaseSpeed = 7f;
+    
+    private float detectionRange = 10f;
+    private float attackRange = 5f;
+    private Vector3 destination;
+
+    private float dmg = 5f;
+
+    private UnitState state = UnitState.Idle;
+    private UnitState lastState = UnitState.Idle;
+    //private MeshRenderer mr = null;
+    private Animator animator;
+
+    private float maxHealth = 100f;
+    private float curHealth = 100f;
+    public float MaxHealth
+    {
+        get { return maxHealth; }
+    }
+    public float CurHealth
+    {
+        get { return curHealth; }
+    }
+
+    [SerializeField]
+    private GameObjectList gameObjectList;
+    public GameObjectList GameObjectList
+    {
+        set { gameObjectList = value; }
+    }
+    private Transform[] playerUnitList;
+    private Transform[] enemyUnitList;
+
     private void Awake()
     {
         mainCam = Camera.main;
+    }
+
+    private void OnEnable()
+    {
+        curHealth = maxHealth;
     }
     private void Start()
     {
         UnitSelectionManager.Instance.allUnitsList.Add(gameObject);
         StartCoroutine(UpdateList());
-        
-        mr = transform.GetComponentInChildren<MeshRenderer>();
+        animator = GetComponent<Animator>();
+        //mr = transform.GetComponentInChildren<MeshRenderer>();
     }
 
     private void Update()
@@ -66,22 +89,20 @@ public class PlayerUnit : MonoBehaviour
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, 1 << LayerMask.NameToLayer("Floor")))
             {
-                targetPos = hitInfo.point;
+                destination = hitInfo.point;
                 bool checkisUnit = false;
                 PathRequestManager.CheckUnitGrid(hitInfo.point, out checkisUnit);
                 Debug.Log("CheckUnitGrid : " + checkisUnit);
-                PathRequestManager.RequestPath(transform.position, targetPos, OnPathFound);
+                PathRequestManager.RequestPath(transform.position, destination, OnPathFound);
 
             }
-            
+            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, 1 << LayerMask.NameToLayer("Enemy")))
+            {
+                target = hitInfo.transform;
+            }
         }
     }
 
-    //private Vector3 RandomTargetPosition() // 같은 목적지를 받을 경우 뭉치는 현상이 발생하기 때문에 분산시키기 위해 offset을 넣어준다.
-    //{
-    //    Vector3 randomoffset = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
-    //    return targetPos + randomoffset;
-    //}
     public void OnPathFound(Vector3[] _newpath, bool _pathSuccessful)
     {
         if (_pathSuccessful)
@@ -90,28 +111,34 @@ public class PlayerUnit : MonoBehaviour
 
             targetIndex = 0;
             if (path.Length == 0 || path == null) return;
-            
-            StopCoroutine("FollowPath");
-            StopCoroutine("Chase");
-            StartCoroutine("FollowPath");
+            if (!isChase)
+            {
+                StopCoroutine("FollowPath");
+                //StopCoroutine("Chase");
+                StartCoroutine("FollowPath");
+            }
         }
         else
         {
-            PathRequestManager.RequestPath(transform.position, targetPos, OnPathFound);
+            PathRequestManager.RequestPath(transform.position, destination, OnPathFound);
         }
     }
     private IEnumerator FollowPath()
     {
-        if (path == null || path.Length == 0) yield break;
+        if (path == null || path.Length == 0)
+        {
+            state = UnitState.Idle;
+            UpdateAnimation(state);
+            yield break;
+        }
         Vector3 currentWaypoint = path[0];
         float timer = 0f;
         float refreshRate = 0.25f;
         float checkChaseTime = 0.25f;
-        //state = UnitState.Move;
-        //UpdateAnimation(state);
+        state = UnitState.Move;
         while (true)
         {
-            //Vector3 separationVector = GetSeparationVector();
+            UpdateAnimation(state);
             timer += Time.deltaTime;
             if (timer >= checkChaseTime)
             {
@@ -119,56 +146,32 @@ public class PlayerUnit : MonoBehaviour
                 CheckChase();
             }
 
-            //if (Vector3.Distance(transform.position, baseCampPos) <= 5f)
-            //{
-            //    state = UnitState.Idle;
-            //    UpdateAnimation(state);
-
-
-            //    //mr.material.color = Color.cyan;
-            //    yield return null;
-            //    continue;
-            //}
             timer += Time.deltaTime;
             if (timer >= refreshRate)
             {
                 timer = 0f;
-                // 현재 위치에서 타겟의 현재 위치로 경로 요청
-                PathRequestManager.RequestPath(transform.position, targetPos, OnPathFound);
+                PathRequestManager.RequestPath(transform.position, destination, OnPathFound);
             }
 
-            if (Vector3.Distance(transform.position, currentWaypoint) < 2f)
+            if (Vector3.Distance(transform.position, currentWaypoint) < 0.1f)
             {
                 targetIndex++;
                 if (targetIndex >= path.Length)
                 {
-                   
+                    state = UnitState.Idle;
+                    UpdateAnimation(state);
                     yield break;
                 }
                 currentWaypoint = path[targetIndex];
             }
             float speed = isChase ? chaseSpeed : normalSpeed;
-            //state = UnitState.Move;
+            state = UnitState.Move;
             transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
-            PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
-            ////if(isUnitGrid)
-            //{
-            //    currentWaypoint -= (transform.position - currentWaypoint) * 2f;
-            //}
-            //transform.position += separationVector * separateForce * Time.deltaTime;
             Turn(transform.position, currentWaypoint);
-            //if (currentWaypoint == path[^1] && Vector3.Distance(transform.position, target.position) <= minTargetDistance)
-            //{
-
-            //    yield break;
-            //}
-
 
             yield return null;
 
-
         }
-
     }
 
     private void Turn(Vector3 _startPos, Vector3 _endPos)
@@ -210,9 +213,10 @@ public class PlayerUnit : MonoBehaviour
             if (dist <= detectionRange * detectionRange)
             {
                 isChase = true;
-                //state = UnitState.Chase;
+                state = UnitState.Chase;
                 target = tr;
                 StopCoroutine("FollowPath");
+                StopCoroutine("Attack");
                 StartCoroutine("Chase");
                 break;
             }
@@ -221,91 +225,67 @@ public class PlayerUnit : MonoBehaviour
     }
     private IEnumerator Chase()
     {
-        float refreshRate = 0.25f; // 경로 갱신 주기 (0.25초마다 경로 재계산)
+        float refreshRate = 0.25f; 
         float timer = 0f;
 
-        // 타겟이 존재하고 추격 상태인 동안 무한 루프
+        state = UnitState.Chase;
+        UpdateAnimation(state);
         while (target != null && isChase)
         {
-            //Vector3 separationVector = GetSeparationVector();
-            if (!target.gameObject.activeInHierarchy)
-            {
-
-                break;
-            }
-            // 1. 거리 체크 및 공격 (옵션)
-            //float dist = Vector3.Distance(transform.position, target.position);
-            float dist = (transform.position - target.position).sqrMagnitude;
-            if (dist <= attackRange * attackRange)
-            {
-                //state = EnemyState.Attack;
-                // 공격 사거리에 들어왔으므로 이동 멈춤 or 공격 로직 수행
-                // 여기서는 예시로 이동만 멈추고 대기
-                Attack();
-                mr.material.color = Color.red;
-                //UpdateAnimation(state);
-
-
-                yield return new WaitForSeconds(1.5f); // 데미지 처리하는 곳에서 Update를 한번 돌릴 수 있도록 대기 시간을 가지는 것
-                continue;
-            }
-            else if (dist <= detectionRange * detectionRange)
-            {
-                //state = EnemyState.Chase;
-                mr.material.color = Color.yellow;
-                //UpdateAnimation(state);
-            }
-            else
-            {
-                target = null;
-               //state = EnemyState.Move;
-                mr.material.color = Color.white;
-                //UpdateAnimation(state);
-
-                break;
-            }
-
-            // 2. 주기적으로 경로 갱신 요청
             timer += Time.deltaTime;
             if (timer >= refreshRate)
             {
                 timer = 0f;
-                // 현재 위치에서 타겟의 현재 위치로 경로 요청
+                if (target != null)
+                    PathRequestManager.RequestPath(transform.position, SetTargetPos(target.position), OnPathFound);
+            }
+            UpdateAnimation(state);
+            if (!target.gameObject.activeInHierarchy)
+            {
+                break;
+            }
+            float dist = (transform.position - target.position).sqrMagnitude;
+            if (dist <= attackRange * attackRange)
+            {
+                state = UnitState.Attack;
+                StartCoroutine("AttackCoroutine");
+                //mr.material.color = Color.red;
+                yield break;
+              
+            }
+            else if (dist <= detectionRange * detectionRange)
+            {
+                state = UnitState.Chase;
+                //mr.material.color = Color.yellow;
+            }
+            else
+            {
+                target = null;
+                state = UnitState.Idle;
+                isChase = false;
+                //mr.material.color = Color.white;
 
-                PathRequestManager.RequestPath(transform.position, SetTargetPos(target.position), OnPathFound);
+                break;
             }
 
-            // 3. 이동 로직 (FollowPath와 유사하지만 while 루프 내부에 존재)
+
             if (path != null && path.Length > 0)
             {
-                // 경로 갱신 시 targetIndex가 배열 범위를 넘는 오류 방지
                 if (targetIndex >= path.Length)
                     targetIndex = path.Length - 1;
 
                 Vector3 currentWaypoint = path[targetIndex];
 
-                // 웨이포인트 도달 확인
-                if (Vector3.Distance(transform.position, currentWaypoint) < 1f) // 정확한 비교(==)보다 거리 체크가 안전
-                {
+                if (Vector3.Distance(transform.position, currentWaypoint) < 1f)                 {
                     targetIndex++;
-                    // 경로 끝에 도달했으면 인덱스 유지 (다음 경로 갱신 기다림)
                     if (targetIndex >= path.Length)
                     {
                         targetIndex = path.Length - 1;
-                        //yield break;
                     }
                     currentWaypoint = path[targetIndex];
                 }
 
-                // 실제 이동
                 transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, chaseSpeed * Time.deltaTime);
-                //Vector3 separationVector = GetSeparationVector();
-                //transform.position += separationVector * separateForce * Time.deltaTime;
-                PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
-                if (isUnitGrid)
-                {
-                    currentWaypoint -= (transform.position - currentWaypoint) * 2f;
-                }
                 Turn(transform.position, currentWaypoint);
 
             }
@@ -313,145 +293,38 @@ public class PlayerUnit : MonoBehaviour
             yield return null; // 한 프레임 대기
         }
         isChase = false;
-        //PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
+        if (state != UnitState.Attack && state != UnitState.Die)
+        {
+            state = UnitState.Idle;
+            UpdateAnimation(state);
+        }
     }
-    //private IEnumerator Chase()
-    //{
-    //    float refreshRate = 0.25f; // 경로 갱신 주기 (0.25초마다 경로 재계산)
-    //    float timer = 0f;
 
-    //    // 타겟이 존재하고 추격 상태인 동안 무한 루프
-    //    while (target != null && isChase)
-    //    {
-    //        Vector3 separationVector = GetSeparationVector();
-    //        if (!target.gameObject.activeInHierarchy)
-    //        {
+    private void UpdateAnimation(UnitState newState)
+    {
+        if (state == lastState) return;
+        lastState = state;
+        animator.SetBool("Idle", false);
+        animator.SetBool("Move", false);
+        animator.SetBool("Chase", false);
+        animator.SetBool("Attack", false);
 
-    //            break;
-    //        }
-    //        // 1. 거리 체크 및 공격 (옵션)
-    //        //float dist = Vector3.Distance(transform.position, target.position);
-    //        float dist = (transform.position - target.position).sqrMagnitude;
-    //        if (dist <= attackRange * attackRange)
-    //        {
-    //            state = UnitState.Attack;
-    //            // 공격 사거리에 들어왔으므로 이동 멈춤 or 공격 로직 수행
-    //            // 여기서는 예시로 이동만 멈추고 대기
-
-    //            //mr.material.color = Color.red;
-    //            UpdateAnimation(state);
-
-
-    //            yield return new WaitForSeconds(1f); // 데미지 처리하는 곳에서 Update를 한번 돌릴 수 있도록 대기 시간을 가지는 것
-    //            continue;
-    //        }
-    //        else if (dist <= detectionRange * detectionRange)
-    //        {
-    //            state = UnitState.Chase;
-    //            //mr.material.color = Color.yellow;
-    //            UpdateAnimation(state);
-
-
-
-    //        }
-    //        else
-    //        {
-    //            target = null;
-    //            state = UnitState.Move;
-    //            //mr.material.color = Color.white;
-    //            UpdateAnimation(state);
-
-    //            break;
-    //        }
-
-    //        // 2. 주기적으로 경로 갱신 요청
-    //        timer += Time.deltaTime;
-    //        if (timer >= refreshRate)
-    //        {
-    //            timer = 0f;
-    //            // 현재 위치에서 타겟의 현재 위치로 경로 요청
-    //            PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-    //        }
-
-    //        // 3. 이동 로직 (FollowPath와 유사하지만 while 루프 내부에 존재)
-    //        if (path != null && path.Length > 0)
-    //        {
-    //            // 경로 갱신 시 targetIndex가 배열 범위를 넘는 오류 방지
-    //            if (targetIndex >= path.Length)
-    //                targetIndex = path.Length - 1;
-
-    //            Vector3 currentWaypoint = path[targetIndex];
-
-    //            // 웨이포인트 도달 확인
-    //            if (Vector3.Distance(transform.position, currentWaypoint) < 0.1f) // 정확한 비교(==)보다 거리 체크가 안전
-    //            {
-    //                targetIndex++;
-    //                // 경로 끝에 도달했으면 인덱스 유지 (다음 경로 갱신 기다림)
-    //                if (targetIndex >= path.Length)
-    //                {
-    //                    targetIndex = path.Length - 1;
-    //                    //yield break;
-    //                }
-    //                currentWaypoint = path[targetIndex];
-    //            }
-
-    //            // 실제 이동
-    //            transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, chaseSpeed * Time.deltaTime);
-    //            //Vector3 separationVector = GetSeparationVector();
-    //            transform.position += separationVector * separateForce * Time.deltaTime;
-    //            Turn(transform.position, currentWaypoint);
-
-    //        }
-
-    //        yield return null; // 한 프레임 대기
-    //    }
-    //    isChase = false;
-    //    PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
-    //}
-
-    //분리 알고리즘
-    //private Vector3 GetSeparationVector()
-    //{
-    //    Vector3 separationVector = Vector3.zero;
-    //    float separateSqrMagnitude = separateRange * separateRange;
-    //    foreach (Transform tr in playerUnitList)
-    //    {
-    //        if (tr == this.transform || tr == null || !tr.gameObject.activeInHierarchy) continue;
-    //        Vector3 direction = transform.position - tr.position;
-    //        float dist = direction.sqrMagnitude;
-    //        if (dist <= separateSqrMagnitude)
-    //        {
-    //            separationVector += direction.normalized / (dist + 0.01f);
-    //        }
-    //    }
-    //    return separationVector;
-    //}
-
-    //private void UpdateAnimation(UnitState newState)
-    //{
-    //    // 1. 모든 파라미터를 일단 다 끕니다 (초기화)
-    //    animator.SetBool("Idle", false);
-    //    animator.SetBool("Move", false);
-    //    animator.SetBool("Chase", false);
-    //    animator.SetBool("Attack", false);
-
-    //    // 2. 현재 상태에 맞는 파라미터만 켭니다
-    //    switch (newState)
-    //    {
-    //        case UnitState.Idle:
-    //            animator.SetBool("Idle", true);
-    //            break;
-    //        case UnitState.Move:
-    //            animator.SetBool("Move", true); // Move와 Chase를 같은 모션으로 쓸거면 여기서 조정
-    //            break;
-    //        case UnitState.Chase:
-    //            animator.SetBool("Chase", true); // 혹은 "Move"를 켤 수도 있음
-    //            break;
-    //        case UnitState.Attack:
-    //            animator.SetBool("Attack", true);
-    //            break;
-    //    }
-    //}
+        switch (newState)
+        {
+            case UnitState.Idle:
+                animator.SetBool("Idle", true);
+                break;
+            case UnitState.Move:
+                animator.SetBool("Move", true); // Move와 Chase를 같은 모션으로 쓸거면 여기서 조정
+                break;
+            case UnitState.Chase:
+                animator.SetBool("Chase", true); // 혹은 "Move"를 켤 수도 있음
+                break;
+            case UnitState.Attack:
+                animator.SetBool("Attack", true);
+                break;
+        }
+    }
     private IEnumerator UpdateList()
     {
         float time = 0;
@@ -470,29 +343,115 @@ public class PlayerUnit : MonoBehaviour
     }
     private Vector3 SetTargetPos(Vector3 _targetPos)
     {
-        Vector3 targetPos = _targetPos;
-        for (int x = -2; x <= 2; ++x)
+        for (int x = -1; x <= 1; ++x)
         {
-            for (int y = -2; y <= 2; ++y)
+            for (int y = -1; y <= 1; ++y)
             {
-                PathRequestManager.CheckUnitGrid(new Vector3(_targetPos.x + x, 0f, _targetPos.z + y), out isUnitGrid);
+                Vector3 checkPos = new Vector3(_targetPos.x + x, _targetPos.y, _targetPos.z + y);
+                PathRequestManager.CheckUnitGrid(checkPos, out isUnitGrid);
                 if (!isUnitGrid)
                 {
-                    return targetPos - (transform.position - targetPos);
+                    return checkPos;
                 }
             }
         }
-
-        return targetPos - (transform.position - targetPos);
+        return _targetPos;
     }
-    private void Attack()
+    public void TakeDamage(float damage, IDamageable _target)
     {
-        Turn(transform.position, target.position);
-
+        if (state == UnitState.Die || curHealth <= 0)
+            return;
+        curHealth -= (int)damage;
+        Debug.Log("Name : " + gameObject.name + ",Hp : " + curHealth);
+        if (_target != null)
+        {
+            if (target == null)
+                target = _target.transform;
+            //float originTarget = (target.position - transform.position).sqrMagnitude;
+            //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
+            //if (originTarget > newTarget)
+            //{
+            //    target = _target.transform;
+            //}
+        }
+        if (curHealth <= 0f)
+        {
+            Die();
+        }
     }
-    private void OnDestroy()
+    private IEnumerator AttackCoroutine()
     {
+        StopCoroutine("Chase");
+        StopCoroutine("FollowPath");
+        float attackDelay = 5f;
+        float time = attackDelay;
+        isChase = false;
+        while (target != null && target.gameObject.activeInHierarchy)
+        {
+            float dist = (transform.position - target.position).sqrMagnitude;
+            if (dist > attackRange * attackRange)
+            {
+                break;
+            }
+            time += Time.deltaTime;
+            if (time >= attackDelay)
+            {
+                if (target == null || !target.gameObject.activeInHierarchy) break;
+                Turn(transform.position, target.position);
+                state = UnitState.Attack;
+                UpdateAnimation(state);
+                //Debug.Log("TargetName : " + target.name + "(" + dmg + ")");
+                IDamageable toTargetDmg = target.GetComponent<IDamageable>();
+                if(toTargetDmg != null)
+                {
+                    toTargetDmg.TakeDamage(dmg, this);
+                }
+                time = 0f;
+
+                yield return new WaitForSeconds(1f);
+                state = UnitState.Idle;
+                UpdateAnimation(state);
+            }
+            yield return null;
+        }
+        if(state == UnitState.Attack)
+        {
+            state = UnitState.Idle;
+            UpdateAnimation(state);
+        }
+        if (target != null && target.gameObject.activeInHierarchy)
+        {
+            float currentDist = (transform.position - target.position).sqrMagnitude;
+            if (currentDist <= detectionRange * detectionRange)
+                CheckChase();
+        }
+        else
+        {
+            target = null;
+        }
+    }
+    private void Die()
+    {
+        if (state == UnitState.Die)
+            return;
+        StopAllCoroutines();
+        StartCoroutine("DeadCoroutine");
         UnitSelectionManager.Instance.allUnitsList.Remove(gameObject);
+        if (UnitSelectionManager.Instance.unitsSelected.Contains(gameObject))
+        {
+            UnitSelectionManager.Instance.unitsSelected.Remove(gameObject);
+        }
     }
+
+    private IEnumerator DeadCoroutine()
+    {
+        state = UnitState.Die;
+        UpdateAnimation(state);
+
+        yield return new WaitForSeconds(2f);
+        setDeadCallback?.Invoke(this);
+        this.gameObject.SetActive(false);
+    }
+
 
 }

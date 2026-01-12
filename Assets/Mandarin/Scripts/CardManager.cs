@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// 업로드 후
 // 카드 연산 및 데이터 관리 - 순수하게 어떤 카드가 뽑혔는지, (리롤 비용은 얼마인지)
 public class CardManager : MonoBehaviour
 {

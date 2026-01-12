@@ -1,12 +1,27 @@
  using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
+
 
 public class GameManager :  MonoBehaviour
 {
     public static GameManager Instance;     // 싱글톤
 
+    public delegate void SpawnUnitdelegate(IDamageable _target);
 
+    private SpawnUnitdelegate spawnUnitCallback;
+
+    public SpawnUnitdelegate SpawnUnitCallback
+    { set { spawnUnitCallback = value; } get { return spawnUnitCallback; } }
+
+    #region 메니저 멤버 변수
+    [Header("Managers")]
     [SerializeField]
-    private KCH.Nexus[] nexuss = new KCH.Nexus[0];
+    private StageManager stageMng = null;
+    [SerializeField]
+    private List<KCH.Nexus> nexuses = new List<KCH.Nexus>();
+    public List<KCH.Nexus> Nexuses
+    { get { return nexuses; } }
     [SerializeField]
     private KCH.AllyUnitManager allyMng = null;
     [SerializeField]
@@ -14,15 +29,40 @@ public class GameManager :  MonoBehaviour
     [SerializeField]
     private KCH.TowerManager towerMng = null;
     [SerializeField]
-    private CardManager cardMng = null;
+    private UIManager uiMng = null;
+    #endregion
 
+    [SerializeField]
+    private GameObjectList gameObjectList = null;
+    public GameObjectList GameObjectList { get { return gameObjectList; } }
     [SerializeField] private int currentGold = 1000;
     //[SerializeField] private int rerollCost = 100;      // 리롤 비용
+    [SerializeField]
+    private int secPerGold = 1;
 
     // 객체가 생성될 때(Awake) 자기 자신을 Instance에 할당한다.
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        Instance = this;
+        SpawnUnitCallback = uiMng.SetHPBar;
+        stageMng.SetWaveEnemyCountCallback = uiMng.SetWaveEnemyCount;
+        stageMng.SetWaveTimerCallback = (_time) => StartCoroutine(uiMng.StartTimer(_time));
+
+    }
     // 다른 스크립트에서 현재 골드가 얼마인지 읽기만할 때
     public int GetCurrentGold() => currentGold;
+
+    #region 라이프 사이클
+
+
+    private void Start()
+    {
+        SetNexuses();
+        uiMng.UpdateGold(currentGold);
+        StartCoroutine(GetGoldCoroutine(secPerGold));
+
+    }
+    #endregion
 
 
     //UI에서 카드를 사용하려고 할 때 호출되는 핵심 함수
@@ -37,6 +77,7 @@ public class GameManager :  MonoBehaviour
 
         // 골드 차감
         currentGold -= data.cost;
+        uiMng.UpdateGold(currentGold);
 
         SpawnUnit(data.cardName, data.type);
         //    // 실제 필드에서 유닛,타워,힐등 소환(Resources에서 로드 등)
@@ -46,7 +87,7 @@ public class GameManager :  MonoBehaviour
         return true;
     }
 
-    private void SpawnUnit(string _type, ResourceManager.DicType _layer)
+    public void SpawnUnit(string _type, ResourceManager.DicType _layer)
     {
         switch (_layer)
         {
@@ -59,20 +100,53 @@ public class GameManager :  MonoBehaviour
             case ResourceManager.DicType.Tower:
                 towerMng.BuildTower(_type);
                 break;
-
-
-
         }
-
     }
 
     //랜덤버튼
     public void SpendGold(int amount)
     {
-        // 입력받은 금액만큼 골드를 줄인다.
         currentGold -= amount;
+        uiMng.UpdateGold(currentGold);
+    }
 
-        //여기에는 UI텍스트 (현재 골드표시)을 갱신하는 코드를 넣으면 좋다.
+    private IEnumerator GetGoldCoroutine(int _goldPerSecond)
+    {
+        while(true)
+        {
+            currentGold += _goldPerSecond;
+            uiMng.UpdateGold(currentGold);
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    private void SetNexuses()
+    {
+        foreach(KCH.Nexus data in nexuses)
+        {
+            data.NexusDestroyCallback = NexusDestroy;
+        }
+    }
+
+    public void EnemyDead()
+    {
+        uiMng.UpdataEnemyCount();
+        stageMng.UpdateRemainingEnemy();
+    }
+    private void NexusDestroy(KCH.Nexus _nexus)
+    {
+        nexuses.Remove( _nexus );
+
+        if ( nexuses.Count == 0 )
+        {
+            GameOver();
+        }
+    }
+
+    private void GameOver()
+    {
+        Debug.Log("Game Is Over");
+        StopCoroutine(GetGoldCoroutine(secPerGold));
     }
 
 }
