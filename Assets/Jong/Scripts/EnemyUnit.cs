@@ -32,6 +32,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     private float detectionRange = 10f;
     private float attackRange = 2.5f;
+    private float originattackRng = 2.5f;
     private  float attackDelay = 10f;
     private float attackTime = 0f;
     
@@ -280,6 +281,9 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
         while (target != null && isChase)
         {
+            Vector3 bound = target.GetComponent<Collider>().bounds.size;
+            float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
+            attackRange =  originattackRng + bounddis;
             timer += Time.deltaTime;
             if (timer >= refreshRate)
             {
@@ -388,22 +392,23 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage, IDamageable _target) // enemy만 준 이유는 아군은 직접 컨트롤 하는게 더 재밌을 것 같아서?
     {
-        if (state == EnemyState.Die || curHealth <= 0)
+        if (state == EnemyState.Die && curHealth <= 0)
             return;
         curHealth -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
         if (_target != null)
         {
+            if (target == _target.transform) return;
             target = _target.transform;
             StopAllCoroutines();
+            Vector3 bound = _target.transform.GetComponent<Collider>().bounds.size;
+            float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
+            attackRange = originattackRng + bounddis;
+            PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+
             isChase = true;
             StartCoroutine("Chase");
-            //float originTarget = (target.position - transform.position).sqrMagnitude;
-            //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
-            //if (originTarget > newTarget)
-            //{
-            //    target = _target.transform;
-            //}
+
         }
         if(curHealth <= 0f)
         {
@@ -452,6 +457,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         if (dist > detectionRange * detectionRange)
         {
             target = null;
+            attackRange = originattackRng;
             PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
         }
         else

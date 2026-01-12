@@ -1,6 +1,10 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Main/Resources/Asset.meta
 guid: 90e730cb676c46549904c4e42026ba13
 folderAsset: yes
+========
+guid: 929f6c3bcf2328745bde2d7e0041d8a8
+>>>>>>>> main:Assets/Jong/Scenes/SampleTitle.unity.meta
 DefaultImporter:
   externalObjects: {}
   userData: 
