@@ -10,20 +10,20 @@ public class HPBarManager : MonoBehaviour
 
     public void SetHPBar(IDamageable _target)
     {
-        HPBar hPBar = null;
-        if(hpPull.TryDequeue(out hPBar))
+        HPBar hpBar = null;
+        if(hpPull.TryDequeue(out hpBar))
         {
-            hPBar.gameObject.SetActive(true);
-            hPBar.OffHpBarCallback = OffHpBar;
-            hPBar.SetNewHPBar(_target);
+            hpBar.gameObject.SetActive(true);
+            hpBar.OffHpBarCallback = OffHpBar;
+            hpBar.SetNewHPBar(_target);
         }
         else
         {
-            hPBar = Instantiate(hpBarPref).GetComponent<HPBar>();
-            hPBar.SetNewHPBar(_target);
-            hPBar.OffHpBarCallback = OffHpBar;
-            hpPull.Enqueue(hPBar);
+            hpBar = Instantiate(hpBarPref,transform).GetComponent<HPBar>();
+            hpBar.SetNewHPBar(_target);
+            hpBar.OffHpBarCallback = OffHpBar;
         }
+
     }
 
     private void OffHpBar(HPBar _target)

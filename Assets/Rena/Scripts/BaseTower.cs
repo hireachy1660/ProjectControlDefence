@@ -2,12 +2,15 @@ using UnityEngine;
 
 public abstract class BaseTower : MonoBehaviour, IDamageable
 {
+    
+
     [Header("Base Settings")]
     #region 인터페이스 상속 변수 프로퍼티
     [SerializeField]
     private float maxHealth = 100f;
     public float MaxHealth
     { get { return maxHealth; } }
+    [SerializeField]
     private float curHealth = 100f;
     public float CurHealth
     { get { return curHealth; } }
