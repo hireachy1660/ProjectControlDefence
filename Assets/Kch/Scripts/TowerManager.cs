@@ -74,6 +74,7 @@ namespace KCH
 
                     curBuildingTower.enabled = true;
                     mr.material.color = Color.white;
+                    GameManager.Instance.SpawnUnitCallback?.Invoke(curBuildingTower);
 
                     break;
                 }

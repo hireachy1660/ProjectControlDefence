@@ -3,6 +3,12 @@ using System.Collections;
 
 public class EnemyUnit : MonoBehaviour, IDamageable
 {
+    public delegate void DeadCallback(EnemyUnit _dead);
+    private DeadCallback setDeadCallback = null;
+    public DeadCallback SetDeadCallback
+    {
+        set { setDeadCallback = value; }
+    }
     public enum EnemyState
     {
         Idle,
@@ -18,6 +24,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     // 유닛 상태
     private bool isChase = false;
+    [SerializeField]
     private Transform target; // 추적 대상
 
     private float normalSpeed = 5f;
@@ -27,30 +34,46 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     private float attackRange = 2.5f;
     private  float attackDelay = 10f;
     private float attackTime = 0f;
-    private int hp = 100;
+    
     private float dmg = 5f;
 
     private EnemyState state = EnemyState.Idle;
     private EnemyState lastState = EnemyState.Idle;
     //private MeshRenderer mr = null;
     private Animator animator;
+    [SerializeField]
+    private float maxHealth = 100f;
+    private float curHealth = 100f;
 
+    public float MaxHealth
+    { get { return maxHealth; } }
+    public float CurHealth
+    { get { return curHealth; } }
 
     // 목적지
     [SerializeField]
     private Transform baseCamp;
+    public Transform BaseCamp
+    {
+        set { baseCamp = value; }
+    }
     private Vector3 baseCampPos;
 
     // 다른 객체 List를 갖기 위해 GameObjectList를 참조
     [SerializeField]
     private GameObjectList gameObjectList;
+    public GameObjectList GameObjectList
+    {
+        set { gameObjectList = value; }
+    }
     [SerializeField]
     private Transform[] playerUnitList;
     [SerializeField]
     private Transform[] towerUnitList;
-    private Transform[] enemyUnitList;
-    
+ 
+
     // 같은 유닛끼리의 격리를 위한 변수(보류)
+    private Transform[] enemyUnitList;
     private float separateRange = 1.5f;
     private float separateForce = 15f;
 
@@ -79,6 +102,12 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         return false;
     }
 
+    private void OnEnable()
+    {
+        curHealth = maxHealth;
+     
+    }
+
     private void Start()
     {
         baseCampPos = baseCamp.position;
@@ -89,6 +118,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         //mr = transform.GetComponentInChildren<MeshRenderer>();
         animator = GetComponent<Animator>();
     }
+
 
     public void OnPathFound(Vector3[] _newpath, bool _pathSuccessful)
     {
@@ -112,8 +142,13 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     }
     private IEnumerator FollowPath()
     {
-        
-        if (path == null || path.Length == 0) yield break;
+
+        if (path == null || path.Length == 0)
+        {
+            state = EnemyState.Idle;
+            UpdateAnimation(state);
+            yield break;
+        }
         Vector3 currentWaypoint = path[0];
         float time = 0f;
         float checkChaseTime = 0.25f;
@@ -150,6 +185,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                 targetIndex++;
                 if(targetIndex >= path.Length)
                 {
+                    state = EnemyState.Idle;
+                    UpdateAnimation(state);
                     yield break;
                 }
                 currentWaypoint = path[targetIndex];
@@ -269,6 +306,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             {
                 target = null;
                 state = EnemyState.Move;
+                isChase = false;
+
                 break;
             }
 
@@ -278,7 +317,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
                     targetIndex = path.Length - 1;
 
                 Vector3 currentWaypoint = path[targetIndex];
-                if (Vector3.Distance(transform.position, currentWaypoint) < 1f)               {
+                if (Vector3.Distance(transform.position, currentWaypoint) < 1f)               
+                {
                     targetIndex++;
                     if (targetIndex >= path.Length)
                     {
@@ -300,7 +340,6 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
             yield return null;
         }
-        isChase = false;
         PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
     }
 
@@ -347,10 +386,27 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             yield return null;
         }
     }
-    public void TakeDamage(float damage) 
+    public void TakeDamage(float damage, IDamageable _target) // enemy만 준 이유는 아군은 직접 컨트롤 하는게 더 재밌을 것 같아서?
     {
-        hp -= (int)damage;
-        Debug.Log("Name : " + gameObject.name + ",Hp : "  + hp);
+        if (state == EnemyState.Die || curHealth <= 0)
+            return;
+        curHealth -= (int)damage;
+        Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
+        if (_target != null)
+        {
+            if (target == null)
+                target = _target.transform;
+            float originTarget = (target.position - transform.position).sqrMagnitude;
+            float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
+            if (originTarget > newTarget)
+            {
+                target = _target.transform;
+            }
+        }
+        if(curHealth <= 0f)
+        {
+            Die();
+        }
     }
 
     private IEnumerator AttackCoroutine()
@@ -361,27 +417,33 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         float time = attackDelay;
         float dist = 0f;
         isChase = false;
-        while(true)
+        while(target != null && target.gameObject.activeInHierarchy)
         {
             dist = (transform.position - target.position).sqrMagnitude;
-            time += Time.deltaTime;
-            if(time>=attackDelay)
-            {
-
-                state = EnemyState.Attack;
-                Turn(transform.position, target.position);
-                Debug.Log("TargetName : " + target.name + "(" + dmg + ")");
-                time = 0f;
-                UpdateAnimation(state);
-
-                yield return new WaitForSeconds(1f);
-                continue;
-            }
-            state = EnemyState.Idle;
-            UpdateAnimation(state);
             if (dist > attackRange * attackRange)
             {
                 break;
+            }
+            time += Time.deltaTime;
+            if(time>=attackDelay)
+            {
+                if (target == null || !target.gameObject.activeInHierarchy) break;
+                Turn(transform.position, target.position);
+                state = EnemyState.Attack;
+                UpdateAnimation(state);
+                //Debug.Log("TargetName : " + target.name + "(" + dmg + ")");
+                IDamageable toTargetDmg = target.GetComponent<IDamageable>();
+                if (toTargetDmg != null)
+                {
+                    toTargetDmg.TakeDamage(dmg, this);
+
+                }
+                time = 0f;
+
+                yield return new WaitForSeconds(1f);
+                
+                state = EnemyState.Idle;
+                UpdateAnimation(state);
             }
             yield return null;
         }
@@ -394,5 +456,23 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         {
             CheckChase();
         }
+    }
+
+    private void Die()
+    {
+        if (state == EnemyState.Die)
+            return;
+        StopAllCoroutines();
+        StartCoroutine("DeadCoroutine");
+    }
+
+    private IEnumerator DeadCoroutine()
+    {
+        state = EnemyState.Die;
+        UpdateAnimation(state);
+        
+        yield return new WaitForSeconds(2f);
+        setDeadCallback?.Invoke(this);
+        this.gameObject.SetActive(false);
     }
 }

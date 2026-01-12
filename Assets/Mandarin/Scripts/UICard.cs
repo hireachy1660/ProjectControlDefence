@@ -12,10 +12,10 @@ public class UICard : MonoBehaviour
     [SerializeField] private Image iconImage = null;
    
     private CardRawData myData;     // 카드 정보
-    private UIManager uiManager;    // 최상위 매니저 참조
+    private UICardManager uiManager;    // 최상위 매니저 참조
 
     // 데이터가 들어오면 UI를 갱신하는 입구
-    public void Setup(CardRawData data, UIManager manager)
+    public void Setup(CardRawData data, UICardManager manager)
     {
         myData = data;  // 전달받은 데이터를 내 저장소에 저장
         uiManager = manager;

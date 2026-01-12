@@ -3,14 +3,26 @@ using UnityEngine;
 // IDamageable 인터페이스를 상속받아야 투사체가 인식합니다.
 public class Enemy : MonoBehaviour, IDamageable
 {
-    public float health = 100f;
+    [SerializeField]
+    private float maxHealth = 100f;
+    private float curHealth = 100f;
 
-    public void TakeDamage(float damage)
+    public float MaxHealth
+    { get { return maxHealth; } }
+    public float CurHealth
+    { get { return curHealth; } }
+
+    private void OnEnable()
     {
-        health -= damage;
-        Debug.Log($"적 체력 감소: {health}"); // 콘솔창에서 확인용
+        curHealth = maxHealth;
+    }
 
-        if (health <= 0)
+    public void TakeDamage(float damage, IDamageable _target)
+    {
+        curHealth -= damage;
+        Debug.Log($"적 체력 감소: {curHealth}"); // 콘솔창에서 확인용
+
+        if (curHealth <= 0)
         {
             Die();
         }

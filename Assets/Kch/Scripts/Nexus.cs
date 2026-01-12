@@ -3,9 +3,9 @@ namespace KCH
 
     using UnityEngine;
 
-    public class Nexus : MonoBehaviour
+    public class Nexus : MonoBehaviour , IDamageable
     {
-        public delegate void NexusDestroydelegate();
+        public delegate void NexusDestroydelegate(KCH.Nexus _nexus);
 
         private NexusDestroydelegate nexusDestroyCallback = null;
 
@@ -14,16 +14,29 @@ namespace KCH
 
 
         [SerializeField]
-        private int hp = 10;
+        private float maxHealth = 100f;
+        private float curHealth = 100f;
 
-        public void OnDamage(int _dmg)
+        public float MaxHealth
+        { get { return maxHealth; } }
+        public float CurHealth
+        { get { return curHealth; } }
+
+        private void OnEnable()
         {
-            hp -= _dmg;
-            if (hp <= 0 )
+            curHealth = maxHealth;
+        }
+
+        public void TakeDamage(float _dmg, IDamageable _target)
+        {
+            curHealth -= (int)_dmg;
+            if (curHealth <= 0 )
             {
-                nexusDestroyCallback?.Invoke();
+                nexusDestroyCallback?.Invoke(this);
+                Destroy(this);
             }
         }
+
     }
 
 }
