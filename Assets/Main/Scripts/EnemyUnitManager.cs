@@ -39,6 +39,7 @@ namespace KCH
                 curEnemyScript = curGo.GetComponent<EnemyUnit>();
                 curEnemyScript.GameObjectList = GameManager.Instance.GameObjectList;
                 curEnemyScript.BaseCamp = GameManager.Instance.Nexuses[0].transform;
+                GameManager.Instance.SpawnUnitCallback?.Invoke(curEnemyScript);
                 // 자식의 게으른 초기화 또는 프로퍼티를 호출하며 사망 델리게이트에 넣을 메소드를 넣는다
 
                 CurSpawnPos++;

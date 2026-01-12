@@ -15,8 +15,11 @@ namespace KCH
         public void SpawnAlly(string _type)
         {
             Debug.Log("SpawnAlly" + _type);
-            curGo = ResourceManager.Instance.AllyPrefList[_type].GetComponent<PlayerUnit>();
+            curGo = Instantiate(ResourceManager.Instance.AllyPrefList[_type]).GetComponent<PlayerUnit>();
+            curGo.transform.position = spawnPoint.position;
             curGo.GameObjectList = GameManager.Instance.GameObjectList;
+            GameManager.Instance.SpawnUnitCallback?.Invoke(curGo);
+            curGo = null;
         }
 
 
