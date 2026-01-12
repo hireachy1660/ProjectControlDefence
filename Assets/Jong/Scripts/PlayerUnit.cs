@@ -24,6 +24,7 @@ public class PlayerUnit : MonoBehaviour
 
     [SerializeField]
     private GameObjectList gameObjectList;
+
     private Transform[] playerUnitList;
     private Vector3 destination;
 
