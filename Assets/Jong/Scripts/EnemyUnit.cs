@@ -392,7 +392,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     }
     public void TakeDamage(float damage, IDamageable _target) // enemy만 준 이유는 아군은 직접 컨트롤 하는게 더 재밌을 것 같아서?
     {
-        if (state == EnemyState.Die || curHealth <= 0)
+        if (state == EnemyState.Die && curHealth <= 0)
             return;
         curHealth -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
