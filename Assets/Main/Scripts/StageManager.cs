@@ -25,7 +25,7 @@ public struct WaveData
 public class StageManager : MonoBehaviour
 {
     public delegate void SetWaveTimerdelegate(float _time);
-    public delegate void SetWaveEnemyCountdelegate(int _count);
+    public delegate void SetWaveEnemyCountdelegate(int _count, int _curWaveNum);
 
     private SetWaveTimerdelegate setWaveTimerCallback;
     private SetWaveEnemyCountdelegate setWaveEnemyCountCallback;
@@ -41,9 +41,12 @@ public class StageManager : MonoBehaviour
     [SerializeField]
     private int curWaveEnemyCount = 0;
 
+    private int maxWaveNum = 0;
+
     private void Start()
     {
         StartCoroutine(StartStageCoroutine());
+        maxWaveNum = waveList.Count;
     }
 
     private IEnumerator StartStageCoroutine()
@@ -56,7 +59,7 @@ public class StageManager : MonoBehaviour
                 curWaveEnemyCount += enemySpawnData.count;
             }
             setWaveTimerCallback?.Invoke(data.waveDelay);
-            setWaveEnemyCountCallback?.Invoke(curWaveEnemyCount);
+            setWaveEnemyCountCallback?.Invoke(curWaveEnemyCount, maxWaveNum);
 
             yield return new WaitForSeconds(data.waveDelay);
             for (int i = 0; i < data.enemyList.Count; i++)

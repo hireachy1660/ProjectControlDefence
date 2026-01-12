@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -14,14 +15,17 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI timer = null;
     [SerializeField]
-    private TextMeshProUGUI WaveEnemyCount = null;
+    private TextMeshProUGUI WaveEnemyCountTMP = null;
     [SerializeField]
     private HPBarManager hpBarMng = null;
-
+    
     private int curGold = 0;
     private float timeInTimer = 0f;
     private int allEnemyInWave = 0;
     private int remaining = 0;
+    private StringBuilder stageSB = new StringBuilder();
+    private int maxWaveNum = 0;
+    private int curWaveNum = 0;
 
     #region 라이프 사이클
 
@@ -50,15 +54,25 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void SetWaveEnemyCount(int  _count)
+    public void SetWaveEnemyCount(int  _count, int _maxWaveNum)
     {
+        maxWaveNum = _maxWaveNum;
         allEnemyInWave = _count;
-        WaveEnemyCount.text = "Left Enemy is :" + remaining + " / " + allEnemyInWave;
+        curWaveNum++;
+
+        stageSB.Clear();
+        stageSB.AppendFormat("Stage : {0} / {1}\n", curWaveNum, maxWaveNum);
+        stageSB.AppendFormat("Left Enemy is : {0} / {1}\n", remaining, allEnemyInWave);
+        WaveEnemyCountTMP.text = stageSB.ToString();
+        remaining = 0;
     }
 
     public void UpdataEnemyCount()
     {
         remaining++;
-        WaveEnemyCount.text = "Left Enemy is :" + remaining + " / " + allEnemyInWave;
+        stageSB.Clear();
+        stageSB.AppendFormat("Stage : {0} / {1}\n", curWaveNum, maxWaveNum);
+        stageSB.AppendFormat("Left Enemy is : {0} / {1}\n", remaining, allEnemyInWave);
+        WaveEnemyCountTMP.text = stageSB.ToString();
     }
 }

@@ -401,8 +401,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             if (target == _target.transform) return;
             target = _target.transform;
             StopAllCoroutines();
-            Vector3 bound = _target.transform.GetComponent<Collider>().bounds.size;
-            float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
+            Collider col = _target.transform.GetComponent<Collider>();
+            float bounddis = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
             attackRange = originattackRng + bounddis;
             PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
 

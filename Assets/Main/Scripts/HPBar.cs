@@ -24,7 +24,7 @@ public class HPBar : MonoBehaviour
 
     private void Update()   // 액션으로 변경 필요
     {
-        transform.position = Camera.main.WorldToScreenPoint(myTarget.transform.position);
+        transform.position = Camera.main.WorldToScreenPoint(myTarget.transform.position) + (Vector3.up * 10f);
         SetCurHp();
     }
 

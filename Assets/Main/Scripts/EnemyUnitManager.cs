@@ -40,6 +40,7 @@ namespace KCH
                 curEnemyScript.GameObjectList = GameManager.Instance.GameObjectList;
                 curEnemyScript.BaseCamp = GameManager.Instance.Nexuses[0].transform;
                 GameManager.Instance.SpawnUnitCallback?.Invoke(curEnemyScript);
+                curEnemyScript.SetDeadCallback = OnDeadEnemy;
                 // 자식의 게으른 초기화 또는 프로퍼티를 호출하며 사망 델리게이트에 넣을 메소드를 넣는다
 
                 CurSpawnPos++;
@@ -51,38 +52,39 @@ namespace KCH
         private void OnDeadEnemy(EnemyUnit _unit)// 타입도 넣어 줄것
         {
             _unit.gameObject.SetActive(false);
-            //TryDead(EnemyUnit _enemyUnit);
+            GameManager.Instance.OnEnemyDead();
+            //TryDead(_unit);
         }
 
         //private void TryDead(EnemyUnit _enemyUnit)
         //{
         //        Queue<EnemyUnit> nowPull;
-        //        if (EnemypullingDic.TryGetValue(_enemyUnit.type, out nowPull))
-        //        {
-        //            nowPull.Enqueue(_enemyUnit);
-        //            _enemyUnit.gameObject.SetActive(false);
-        //        }
-        //        else
-        //        {
-        //            EnemypullingDic.Add(_enemyUnit.type, new Queue<EnemyUnit>());
-        //            EnemypullingDic[_enemyUnit.type].Enqueue(_enemyUnit);
-        //        }
+        //    if (EnemypullingDic.TryGetValue(EEnemyType.Enemy, out nowPull))
+        //    {
+        //        nowPull.Enqueue(_enemyUnit);
+        //        _enemyUnit.gameObject.SetActive(false);
+        //    }
+        //    else
+        //    {
+        //        EnemypullingDic.Add(EEnemyType.Enemy, new Queue<EnemyUnit>());
+        //        EnemypullingDic[EEnemyType.Enemy].Enqueue(_enemyUnit);
+        //    }
         //}
 
-        private void TrySpawn(EnemyUnit _unit)
-        {
+        //private void TrySpawn(EnemyUnit _unit)
+        //{
         //        EnemyUnit pulledUnit;
-        //        if (EnemypullingDic[_enemyUnit.type].TryDequeue(out pulledUnit))
+        //        if (EnemypullingDic[EEnemyType.Enemy].TryDequeue(out pulledUnit))
         //        {
         //            pulledUnit.gameObject.SetActive(true);
         //            pulledUnit.transform.position = SpawnTrs[CurSpawnPos].position;
         //        }
         //        else
         //        {
-        //            SpawnEnemy(_enemyUnit.type.ToString());
-        //        }
+        //        SpawnEnemy(EEnemyType.Enemy.ToString());
+        //    }
 
-        }
+        //}
     }
 }
 

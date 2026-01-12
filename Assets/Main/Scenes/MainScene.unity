@@ -381,13 +381,31 @@ MonoBehaviour:
   - waveName: 1
     enemyList:
     - EnemyType: 0
-      count: 20
+      count: 10
       spawnInterval: 0
     waveDelay: 2
   - waveName: 2
     enemyList:
     - EnemyType: 0
-      count: 20
+      count: 10
+      spawnInterval: 0
+    waveDelay: 2
+  - waveName: 3
+    enemyList:
+    - EnemyType: 0
+      count: 10
+      spawnInterval: 0
+    waveDelay: 2
+  - waveName: 4
+    enemyList:
+    - EnemyType: 0
+      count: 10
+      spawnInterval: 0
+    waveDelay: 2
+  - waveName: 5
+    enemyList:
+    - EnemyType: 0
+      count: 10
       spawnInterval: 0
     waveDelay: 2
   curWaveEnemyCount: 0
@@ -1899,10 +1917,13 @@ MonoBehaviour:
     m_Bits: 64
   enemyUnit:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   playerUnit:
     serializedVersion: 2
     m_Bits: 512
+  towerUnit:
+    serializedVersion: 2
+    m_Bits: 64
   gridWorldSize: {x: 100, y: 100}
   nodeRadius: 0.5
 --- !u!4 &588670061
@@ -3955,7 +3976,7 @@ MonoBehaviour:
   cardMng: {fileID: 1399671753}
   curGoldTMP: {fileID: 517063101}
   timer: {fileID: 10182382}
-  WaveEnemyCount: {fileID: 573210487}
+  WaveEnemyCountTMP: {fileID: 573210487}
   hpBarMng: {fileID: 1442469062}
 --- !u!114 &2127299339
 MonoBehaviour:
