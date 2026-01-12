@@ -41,6 +41,10 @@ public class GameManager :  MonoBehaviour
     private int secPerGold = 1;
 
     // 객체가 생성될 때(Awake) 자기 자신을 Instance에 할당한다.
+    // 다른 스크립트에서 현재 골드가 얼마인지 읽기만할 때
+    public int GetCurrentGold() => currentGold;
+
+    #region 라이프 사이클
     private void Awake()
     {
         Instance = this;
@@ -49,11 +53,6 @@ public class GameManager :  MonoBehaviour
         stageMng.SetWaveTimerCallback = (_time) => StartCoroutine(uiMng.StartTimer(_time));
 
     }
-    // 다른 스크립트에서 현재 골드가 얼마인지 읽기만할 때
-    public int GetCurrentGold() => currentGold;
-
-    #region 라이프 사이클
-
 
     private void Start()
     {
@@ -141,6 +140,13 @@ public class GameManager :  MonoBehaviour
         {
             GameOver();
         }
+    }
+
+    public void OnEnemyDead()
+    {
+        stageMng.UpdateRemainingEnemy();
+        uiMng.UpdataEnemyCount();
+
     }
 
     private void GameOver()

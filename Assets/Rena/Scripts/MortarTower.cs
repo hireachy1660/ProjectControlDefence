@@ -18,7 +18,7 @@ public class MortarTower : BaseTower
             //박격포 특유의 투사체 설정 (폭발 속성 활성화)
             projectile.isExplosive = true;
             projectile.explosionRadius = explosionRadius;
-            projectile.Setup(currentTarget, damage, true);  //ture은 포물선 사용여부
+            projectile.Setup(currentTarget, damage, true, this);  //ture은 포물선 사용여부
 
         }
 

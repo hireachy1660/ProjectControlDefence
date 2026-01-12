@@ -64,17 +64,18 @@ public class ResourceManager : MonoBehaviour
             switch (LayerMask.LayerToName(go.layer))
             {
                 case "PlayerUnit":
-                    //PlayerUnit pu = null;
-                    //if (!go.TryGetComponent<BaseTower>(out pu))
-                    //    continue;
+                    PlayerUnit pu = null;
+                    if (!go.TryGetComponent<PlayerUnit>(out pu))
+                        continue;
 
-                    //towerPrefList.Add(pu.Type.ToString(), go);
+                    AllyPrefList.Add(pu.type.ToString(), go);
 
-                    //CardDefinition newCardDef = new CardDefinition();
-                    //newCardDef.type = DicType.TOWER;
-                    //newCardDef.enumidx = (int)pu.Type;
+                    CardDefinition newPlayerCardDef = new CardDefinition();
+                    newPlayerCardDef.type = DicType.PlayerUnit;
+                    newPlayerCardDef.enumidx = (int)pu.type;
 
-                    //cardDefs.Add(newCardDef);
+                    cardDefs.Add(newPlayerCardDef);
+                    MakeCard(pu.type.ToString(), DicType.PlayerUnit);
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseAlly>)");
                     break;
 
@@ -83,7 +84,7 @@ public class ResourceManager : MonoBehaviour
                     if (!go.TryGetComponent<EnemyUnit>(out en))
                         continue;
 
-                    enemyPrefList.Add(EnemyUnitManager.EEnemyType.Enemy.ToString(), go);    // 추후 에너미 베이스 클래스에 이넘을 가지는 시리얼라이즈 필드 추가 필요
+                    enemyPrefList.TryAdd(EnemyUnitManager.EEnemyType.Enemy.ToString(), go);    // 추후 에너미 베이스 클래스에 이넘을 가지는 시리얼라이즈 필드 추가 필요
                     
                     Debug.Log("allyPrefList.Add(go.GetComponent<BaseEnemy>)");
                     break;

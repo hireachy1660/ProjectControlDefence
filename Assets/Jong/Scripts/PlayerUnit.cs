@@ -11,6 +11,10 @@ public class PlayerUnit : MonoBehaviour, IDamageable
     {
         set { setDeadCallback = value; }
     }
+    public enum EPlayerType
+    { Player }
+
+    public EPlayerType type = EPlayerType.Player;
     public enum UnitState
     {
         Idle,

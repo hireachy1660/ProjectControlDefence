@@ -43,11 +43,13 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
 
     private void OnEnable()
     {
+        gameObject.GetComponent<BoxCollider>().enabled = true;
         myCollider.isTrigger = false;
     }
 
     private void OnDisable()
     {
+        gameObject.GetComponent<BoxCollider>().enabled = false;
         myCollider.isTrigger = true;
     }
 
