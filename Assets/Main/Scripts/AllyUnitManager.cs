@@ -15,7 +15,8 @@ namespace KCH
         public void SpawnAlly(string _type)
         {
             Debug.Log("SpawnAlly" + _type);
-            curGo = ResourceManager.Instance.TowerPrefList[_type].GetComponent<PlayerUnit>();
+            curGo = ResourceManager.Instance.AllyPrefList[_type].GetComponent<PlayerUnit>();
+            curGo.GameObjectList = GameManager.Instance.GameObjectList;
         }
 
 
