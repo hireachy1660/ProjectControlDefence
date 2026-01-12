@@ -17,7 +17,7 @@ public class Enemy : MonoBehaviour, IDamageable
         curHealth = maxHealth;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, IDamageable _target)
     {
         curHealth -= damage;
         Debug.Log($"적 체력 감소: {curHealth}"); // 콘솔창에서 확인용

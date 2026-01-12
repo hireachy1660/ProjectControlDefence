@@ -86,7 +86,7 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
     //실제 공격 방식은 자식클래스에서 재정의
     protected abstract void Attack();
 
-    public virtual void TakeDamage(float amount)
+    public virtual void TakeDamage(float amount, IDamageable _target)
     {
         curHealth -= amount;
         if (curHealth <= 0) Die();
