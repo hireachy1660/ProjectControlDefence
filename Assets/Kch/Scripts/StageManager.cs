@@ -65,7 +65,7 @@ public class StageManager : MonoBehaviour
              for(int j = 0; j < data.enemyList[i].count; j++)
                 {
                     GameManager.Instance.SpawnUnit(data.enemyList[i].EnemyType.ToString(), ResourceManager.DicType.Enemy);
-                    yield return new WaitForSeconds(data.enemyList[i].spawnInterval);
+                    yield return new WaitForSeconds(data.enemyList[j].spawnInterval);
                 }
             }
 

@@ -20,6 +20,8 @@ public class UIManager : MonoBehaviour
 
     private int curGold = 0;
     private float timeInTimer = 0f;
+    private int allEnemyInWave = 0;
+    private int remaining = 0;
 
     #region 라이프 사이클
 
@@ -43,8 +45,20 @@ public class UIManager : MonoBehaviour
         while (timeInTimer > 0f)
         {
             timeInTimer -= Time.deltaTime;
-            timer.text = timeInTimer;
+            timer.text = timeInTimer.ToString("N2");
             yield return null;
         }
+    }
+
+    public void SetWaveEnemyCount(int  _count)
+    {
+        allEnemyInWave = _count;
+        WaveEnemyCount.text = allEnemyInWave.ToString();
+    }
+
+    public void UpdataEnemyCount()
+    {
+        remaining++;
+        WaveEnemyCount.text = "Left Enemy if :" + remaining + " / " + allEnemyInWave;
     }
 }

@@ -15,9 +15,13 @@ public class GameManager :  MonoBehaviour
     { set { spawnUnitCallback = value; } get { return spawnUnitCallback; } }
 
     #region 메니저 멤버 변수
-    [Header("Managers")] 
+    [Header("Managers")]
+    [SerializeField]
+    private StageManager stageMng = null;
     [SerializeField]
     private List<KCH.Nexus> nexuses = new List<KCH.Nexus>();
+    public List<KCH.Nexus> Nexuses
+    { get { return nexuses; } }
     [SerializeField]
     private KCH.AllyUnitManager allyMng = null;
     [SerializeField]
@@ -28,6 +32,9 @@ public class GameManager :  MonoBehaviour
     private UIManager uiMng = null;
     #endregion
 
+    [SerializeField]
+    private GameObjectList gameObjectList = null;
+    public GameObjectList GameObjectList { get { return gameObjectList; } }
     [SerializeField] private int currentGold = 1000;
     //[SerializeField] private int rerollCost = 100;      // 리롤 비용
     [SerializeField]
@@ -45,6 +52,7 @@ public class GameManager :  MonoBehaviour
         uiMng.UpdateGold(currentGold);
         StartCoroutine(GetGoldCoroutine(secPerGold));
         SpawnUnitCallback = uiMng.SetHPBar;
+        stageMng.SetWaveTimerCallback = (_time) => StartCoroutine(uiMng.StartTimer(_time));
     }
     #endregion
 
@@ -112,6 +120,11 @@ public class GameManager :  MonoBehaviour
         }
     }
 
+    public void EnemyDead()
+    {
+        uiMng.UpdataEnemyCount();
+        stageMng.UpdateRemainingEnemy();
+    }
     private void NexusDestroy(KCH.Nexus _nexus)
     {
         nexuses.Remove( _nexus );
