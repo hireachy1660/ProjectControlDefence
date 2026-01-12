@@ -24,9 +24,22 @@ public struct WaveData
 
 public class StageManager : MonoBehaviour
 {
+    public delegate void SetWaveTimerdelegate(float _time);
+    public delegate void SetWaveEnemyCountdelegate(int _count);
+
+    private SetWaveTimerdelegate setWaveTimerCallback;
+    private SetWaveEnemyCountdelegate setWaveEnemyCountCallback;
+
+    public SetWaveTimerdelegate SetWaveTimerCallback
+    { set { setWaveTimerCallback = value; } }
+    public SetWaveEnemyCountdelegate SetWaveEnemyCountCallback
+    { set { setWaveEnemyCountCallback = value; }}
 
     [SerializeField]
     private List<WaveData> waveList;
+
+    [SerializeField]
+    private int curWaveEnemyCount = 0;
 
     private void Start()
     {
@@ -35,23 +48,37 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator StartStageCoroutine()
     {
-        
         foreach (WaveData data in waveList)
         {
+            curWaveEnemyCount = 0;
+            foreach (EnemySpawnData enemySpawnData in data.enemyList)
+            {
+                curWaveEnemyCount += enemySpawnData.count;
+            }
+            setWaveTimerCallback?.Invoke(data.waveDelay);
+            setWaveEnemyCountCallback?.Invoke(curWaveEnemyCount);
+
             yield return new WaitForSeconds(data.waveDelay);
             for (int i = 0; i < data.enemyList.Count; i++)
             {
+
              for(int j = 0; j < data.enemyList[i].count; j++)
                 {
                     GameManager.Instance.SpawnUnit(data.enemyList[i].EnemyType.ToString(), ResourceManager.DicType.Enemy);
-                    yield return new WaitForSeconds(data.enemyList[i].spawnInterval);
+                    yield return new WaitForSeconds(data.enemyList[j].spawnInterval);
                 }
             }
+
+            yield return new WaitUntil(() => curWaveEnemyCount < 0);
         }
 
         Debug.Log("All Wave Done");
         yield break;
     }
 
+    public void UpdateRemainingEnemy()
+    {
+        curWaveEnemyCount--;
+    }
 
 }
