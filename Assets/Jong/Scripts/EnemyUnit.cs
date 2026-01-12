@@ -32,6 +32,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
     private float detectionRange = 10f;
     private float attackRange = 2.5f;
+    private float originattackRng = 2.5f;
     private  float attackDelay = 10f;
     private float attackTime = 0f;
     
@@ -280,6 +281,9 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
         while (target != null && isChase)
         {
+            Vector3 bound = target.GetComponent<Collider>().bounds.size;
+            float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
+            attackRange =  originattackRng + bounddis;
             timer += Time.deltaTime;
             if (timer >= refreshRate)
             {
@@ -395,12 +399,11 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         if (_target != null)
         {
             target = _target.transform;
-            //float originTarget = (target.position - transform.position).sqrMagnitude;
-            //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
-            //if (originTarget > newTarget)
-            //{
-            //    target = _target.transform;
-            //}
+            StopAllCoroutines();
+            Vector3 bound = _target.transform.GetComponent<Collider>().bounds.size;
+            float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
+            attackRange = originattackRng + bounddis;
+            PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
         }
         if(curHealth <= 0f)
         {
@@ -449,6 +452,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         if (dist > detectionRange * detectionRange)
         {
             target = null;
+            attackRange = originattackRng;
             PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
         }
         else
