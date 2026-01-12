@@ -3,8 +3,14 @@ using UnityEngine;
 using static EnemyUnit;
 using static UnityEngine.GraphicsBuffer;
 
-public class PlayerUnit : MonoBehaviour
+public class PlayerUnit : MonoBehaviour, IDamageable
 {
+    public delegate void DeadCallback(PlayerUnit _dead);
+    private DeadCallback setDeadCallback = null;
+    public DeadCallback SEtDeadCallback
+    {
+        set { setDeadCallback = value; }
+    }
     public enum UnitState
     {
         Idle,
@@ -13,42 +19,65 @@ public class PlayerUnit : MonoBehaviour
         Attack,
         Die
     }
-    private float normalSpeed = 5f;
     private Vector3[] path;
     private int targetIndex;
+    
     private bool isChase = false;
-    public float detectionRange = 10f;
-    public float attackRange = 5f;
-    public float chaseSpeed = 10f;
-
-
-    [SerializeField]
-    private GameObjectList gameObjectList;
-
-    private Transform[] playerUnitList;
-    private Vector3 destination;
-
-    //private UnitState state = UnitState.Idle;
-    private MeshRenderer mr = null;
-
-    private Transform[] enemyUnitList;
     [SerializeField]
     private Transform target;
-
-    //private Animator animator;
     private Camera mainCam;
     public bool shouldMove = false;
     private bool isUnitGrid = false;
+
+    private float normalSpeed = 5f;
+    private float chaseSpeed = 7f;
+    
+    private float detectionRange = 10f;
+    private float attackRange = 5f;
+    private Vector3 destination;
+
+    private float dmg = 5f;
+
+    private UnitState state = UnitState.Idle;
+    private UnitState lastState = UnitState.Idle;
+    //private MeshRenderer mr = null;
+    private Animator animator;
+
+    private float maxHealth = 100f;
+    private float curHealth = 100f;
+    public float MaxHealth
+    {
+        get { return maxHealth; }
+    }
+    public float CurHealth
+    {
+        get { return curHealth; }
+    }
+
+    [SerializeField]
+    private GameObjectList gameObjectList;
+    public GameObjectList GameObjectList
+    {
+        set { gameObjectList = value; }
+    }
+    private Transform[] playerUnitList;
+    private Transform[] enemyUnitList;
+
     private void Awake()
     {
         mainCam = Camera.main;
+    }
+
+    private void OnEnable()
+    {
+        curHealth = maxHealth;
     }
     private void Start()
     {
         UnitSelectionManager.Instance.allUnitsList.Add(gameObject);
         StartCoroutine(UpdateList());
-        
-        mr = transform.GetComponentInChildren<MeshRenderer>();
+        animator = GetComponent<Animator>();
+        //mr = transform.GetComponentInChildren<MeshRenderer>();
     }
 
     private void Update()
@@ -70,7 +99,6 @@ public class PlayerUnit : MonoBehaviour
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, 1 << LayerMask.NameToLayer("Enemy")))
             {
                 target = hitInfo.transform;
-                bool checkisUnit = false;
             }
         }
     }
@@ -83,10 +111,12 @@ public class PlayerUnit : MonoBehaviour
 
             targetIndex = 0;
             if (path.Length == 0 || path == null) return;
-            
-            StopCoroutine("FollowPath");
-            StopCoroutine("Chase");
-            StartCoroutine("FollowPath");
+            if (!isChase)
+            {
+                StopCoroutine("FollowPath");
+                //StopCoroutine("Chase");
+                StartCoroutine("FollowPath");
+            }
         }
         else
         {
@@ -95,15 +125,20 @@ public class PlayerUnit : MonoBehaviour
     }
     private IEnumerator FollowPath()
     {
-        if (path == null || path.Length == 0) yield break;
+        if (path == null || path.Length == 0)
+        {
+            state = UnitState.Idle;
+            UpdateAnimation(state);
+            yield break;
+        }
         Vector3 currentWaypoint = path[0];
         float timer = 0f;
         float refreshRate = 0.25f;
         float checkChaseTime = 0.25f;
-        //state = UnitState.Move;
-        //UpdateAnimation(state);
+        state = UnitState.Move;
         while (true)
         {
+            UpdateAnimation(state);
             timer += Time.deltaTime;
             if (timer >= checkChaseTime)
             {
@@ -123,12 +158,14 @@ public class PlayerUnit : MonoBehaviour
                 targetIndex++;
                 if (targetIndex >= path.Length)
                 {
+                    state = UnitState.Idle;
+                    UpdateAnimation(state);
                     yield break;
                 }
                 currentWaypoint = path[targetIndex];
             }
             float speed = isChase ? chaseSpeed : normalSpeed;
-            //state = UnitState.Move;
+            state = UnitState.Move;
             transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
             Turn(transform.position, currentWaypoint);
 
@@ -176,9 +213,10 @@ public class PlayerUnit : MonoBehaviour
             if (dist <= detectionRange * detectionRange)
             {
                 isChase = true;
-                //state = UnitState.Chase;
+                state = UnitState.Chase;
                 target = tr;
                 StopCoroutine("FollowPath");
+                StopCoroutine("Attack");
                 StartCoroutine("Chase");
                 break;
             }
@@ -190,8 +228,18 @@ public class PlayerUnit : MonoBehaviour
         float refreshRate = 0.25f; 
         float timer = 0f;
 
+        state = UnitState.Chase;
+        UpdateAnimation(state);
         while (target != null && isChase)
         {
+            timer += Time.deltaTime;
+            if (timer >= refreshRate)
+            {
+                timer = 0f;
+                if (target != null)
+                    PathRequestManager.RequestPath(transform.position, SetTargetPos(target.position), OnPathFound);
+            }
+            UpdateAnimation(state);
             if (!target.gameObject.activeInHierarchy)
             {
                 break;
@@ -199,34 +247,27 @@ public class PlayerUnit : MonoBehaviour
             float dist = (transform.position - target.position).sqrMagnitude;
             if (dist <= attackRange * attackRange)
             {
+                state = UnitState.Attack;
                 StartCoroutine("AttackCoroutine");
-                mr.material.color = Color.red;
-                //UpdateAnimation(state);
+                //mr.material.color = Color.red;
                 yield break;
               
             }
             else if (dist <= detectionRange * detectionRange)
             {
-                //state = EnemyState.Chase;
-                mr.material.color = Color.yellow;
-                //UpdateAnimation(state);
+                state = UnitState.Chase;
+                //mr.material.color = Color.yellow;
             }
             else
             {
                 target = null;
-               //state = EnemyState.Move;
-                mr.material.color = Color.white;
-                //UpdateAnimation(state);
+                state = UnitState.Idle;
+                isChase = false;
+                //mr.material.color = Color.white;
 
                 break;
             }
 
-            timer += Time.deltaTime;
-            if (timer >= refreshRate)
-            {
-                timer = 0f;
-                PathRequestManager.RequestPath(transform.position, SetTargetPos(target.position), OnPathFound);
-            }
 
             if (path != null && path.Length > 0)
             {
@@ -245,11 +286,6 @@ public class PlayerUnit : MonoBehaviour
                 }
 
                 transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, chaseSpeed * Time.deltaTime);
-                //PathRequestManager.CheckUnitGrid(currentWaypoint, out isUnitGrid);
-                //if (isUnitGrid)
-                //{
-                //    currentWaypoint -= (transform.position - currentWaypoint) * 2f;
-                //}
                 Turn(transform.position, currentWaypoint);
 
             }
@@ -257,31 +293,38 @@ public class PlayerUnit : MonoBehaviour
             yield return null; // 한 프레임 대기
         }
         isChase = false;
+        if (state != UnitState.Attack && state != UnitState.Die)
+        {
+            state = UnitState.Idle;
+            UpdateAnimation(state);
+        }
     }
-    
-    //private void UpdateAnimation(UnitState newState)
-    //{
-    //    animator.SetBool("Idle", false);
-    //    animator.SetBool("Move", false);
-    //    animator.SetBool("Chase", false);
-    //    animator.SetBool("Attack", false);
 
-    //    switch (newState)
-    //    {
-    //        case UnitState.Idle:
-    //            animator.SetBool("Idle", true);
-    //            break;
-    //        case UnitState.Move:
-    //            animator.SetBool("Move", true); // Move와 Chase를 같은 모션으로 쓸거면 여기서 조정
-    //            break;
-    //        case UnitState.Chase:
-    //            animator.SetBool("Chase", true); // 혹은 "Move"를 켤 수도 있음
-    //            break;
-    //        case UnitState.Attack:
-    //            animator.SetBool("Attack", true);
-    //            break;
-    //    }
-    //}
+    private void UpdateAnimation(UnitState newState)
+    {
+        if (state == lastState) return;
+        lastState = state;
+        animator.SetBool("Idle", false);
+        animator.SetBool("Move", false);
+        animator.SetBool("Chase", false);
+        animator.SetBool("Attack", false);
+
+        switch (newState)
+        {
+            case UnitState.Idle:
+                animator.SetBool("Idle", true);
+                break;
+            case UnitState.Move:
+                animator.SetBool("Move", true); // Move와 Chase를 같은 모션으로 쓸거면 여기서 조정
+                break;
+            case UnitState.Chase:
+                animator.SetBool("Chase", true); // 혹은 "Move"를 켤 수도 있음
+                break;
+            case UnitState.Attack:
+                animator.SetBool("Attack", true);
+                break;
+        }
+    }
     private IEnumerator UpdateList()
     {
         float time = 0;
@@ -300,20 +343,41 @@ public class PlayerUnit : MonoBehaviour
     }
     private Vector3 SetTargetPos(Vector3 _targetPos)
     {
-        Vector3 targetPos = _targetPos;
-        for (int x = -2; x <= 2; ++x)
+        for (int x = -1; x <= 1; ++x)
         {
-            for (int y = -2; y <= 2; ++y)
+            for (int y = -1; y <= 1; ++y)
             {
-                PathRequestManager.CheckUnitGrid(new Vector3(_targetPos.x + x, 0f, _targetPos.z + y), out isUnitGrid);
+                Vector3 checkPos = new Vector3(_targetPos.x + x, _targetPos.y, _targetPos.z + y);
+                PathRequestManager.CheckUnitGrid(checkPos, out isUnitGrid);
                 if (!isUnitGrid)
                 {
-                    return targetPos - (transform.position - targetPos);
+                    return checkPos;
                 }
             }
         }
-
-        return targetPos - (transform.position - targetPos);
+        return _targetPos;
+    }
+    public void TakeDamage(float damage, IDamageable _target)
+    {
+        if (state == UnitState.Die || curHealth <= 0)
+            return;
+        curHealth -= (int)damage;
+        Debug.Log("Name : " + gameObject.name + ",Hp : " + curHealth);
+        if (_target != null)
+        {
+            if (target == null)
+                target = _target.transform;
+            //float originTarget = (target.position - transform.position).sqrMagnitude;
+            //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
+            //if (originTarget > newTarget)
+            //{
+            //    target = _target.transform;
+            //}
+        }
+        if (curHealth <= 0f)
+        {
+            Die();
+        }
     }
     private IEnumerator AttackCoroutine()
     {
@@ -322,36 +386,72 @@ public class PlayerUnit : MonoBehaviour
         float attackDelay = 5f;
         float time = attackDelay;
         isChase = false;
-        while (true)
+        while (target != null && target.gameObject.activeInHierarchy)
         {
-
-            time += Time.deltaTime;
-            if (time >= attackDelay)
-            {
-
-                //state = EnemyState.Attack;
-                Turn(transform.position, target.position);
-                //Debug.Log("TargetName : " + target.name + "(" + dmg + ")");
-                time = 0f;
-                //UpdateAnimation(state);
-
-                yield return new WaitForSeconds(1f);
-                continue;
-            }
-            //state = EnemyState.Idle;
-            //UpdateAnimation(state);
             float dist = (transform.position - target.position).sqrMagnitude;
             if (dist > attackRange * attackRange)
             {
                 break;
             }
+            time += Time.deltaTime;
+            if (time >= attackDelay)
+            {
+                if (target == null || !target.gameObject.activeInHierarchy) break;
+                Turn(transform.position, target.position);
+                state = UnitState.Attack;
+                UpdateAnimation(state);
+                //Debug.Log("TargetName : " + target.name + "(" + dmg + ")");
+                IDamageable toTargetDmg = target.GetComponent<IDamageable>();
+                if(toTargetDmg != null)
+                {
+                    toTargetDmg.TakeDamage(dmg, this);
+                }
+                time = 0f;
+
+                yield return new WaitForSeconds(1f);
+                state = UnitState.Idle;
+                UpdateAnimation(state);
+            }
             yield return null;
         }
-        CheckChase();
+        if(state == UnitState.Attack)
+        {
+            state = UnitState.Idle;
+            UpdateAnimation(state);
+        }
+        if (target != null && target.gameObject.activeInHierarchy)
+        {
+            float currentDist = (transform.position - target.position).sqrMagnitude;
+            if (currentDist <= detectionRange * detectionRange)
+                CheckChase();
+        }
+        else
+        {
+            target = null;
+        }
     }
-    private void OnDestroy()
+    private void Die()
     {
+        if (state == UnitState.Die)
+            return;
+        StopAllCoroutines();
+        StartCoroutine("DeadCoroutine");
         UnitSelectionManager.Instance.allUnitsList.Remove(gameObject);
+        if (UnitSelectionManager.Instance.unitsSelected.Contains(gameObject))
+        {
+            UnitSelectionManager.Instance.unitsSelected.Remove(gameObject);
+        }
     }
+
+    private IEnumerator DeadCoroutine()
+    {
+        state = UnitState.Die;
+        UpdateAnimation(state);
+
+        yield return new WaitForSeconds(2f);
+        setDeadCallback?.Invoke(this);
+        this.gameObject.SetActive(false);
+    }
+
 
 }

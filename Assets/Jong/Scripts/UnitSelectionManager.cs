@@ -109,8 +109,10 @@ public class UnitSelectionManager : MonoBehaviour
     {
         foreach (GameObject unit in unitsSelected)
         {
-            SelectUnits(unit, false);
-
+            if (unit != null)
+            {
+                SelectUnits(unit, false);
+            }
         }
         unitsSelected.Clear();
         floorMarker.SetActive(false);
@@ -130,9 +132,16 @@ public class UnitSelectionManager : MonoBehaviour
 
         }
     }
-    private void EnableUnitMovement(GameObject _selectUnit, bool _shouldMove)
+    public void EnableUnitMovement(GameObject _selectUnit, bool _shouldMove)
     {
-        _selectUnit.GetComponent<PlayerUnit>().shouldMove = _shouldMove;
+        if (_selectUnit == null) return;
+
+        PlayerUnit playerUnit = _selectUnit.GetComponent<PlayerUnit>();
+
+        if (playerUnit == null) return;
+
+        // 안전하게 값 변경
+        playerUnit.shouldMove = _shouldMove;
     }
 
     private void VisibleIndicator(GameObject _selectUnit, bool _visible)

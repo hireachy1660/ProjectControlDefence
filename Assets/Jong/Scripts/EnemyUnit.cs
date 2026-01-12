@@ -78,7 +78,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     private float separateForce = 15f;
 
 
-    [Header("충돌 감지 설정")]
+    // 유닛간 충돌거리 조절
     public LayerMask unitLayer;
     public float stopDistance = 2f; // 앞 유닛과의 안전 거리
 
@@ -394,14 +394,13 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
         if (_target != null)
         {
-            if (target == null)
-                target = _target.transform;
-            float originTarget = (target.position - transform.position).sqrMagnitude;
-            float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
-            if (originTarget > newTarget)
-            {
-                target = _target.transform;
-            }
+            target = _target.transform;
+            //float originTarget = (target.position - transform.position).sqrMagnitude;
+            //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
+            //if (originTarget > newTarget)
+            //{
+            //    target = _target.transform;
+            //}
         }
         if(curHealth <= 0f)
         {
