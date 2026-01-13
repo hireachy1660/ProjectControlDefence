@@ -447,32 +447,32 @@ MonoBehaviour:
     enemyList:
     - EnemyType: 0
       count: 10
-      spawnInterval: 0
-    waveDelay: 2
+      spawnInterval: 4
+    waveDelay: 20
   - waveName: 2
     enemyList:
     - EnemyType: 0
       count: 10
-      spawnInterval: 0
-    waveDelay: 2
+      spawnInterval: 3
+    waveDelay: 20
   - waveName: 3
     enemyList:
     - EnemyType: 0
       count: 10
-      spawnInterval: 0
-    waveDelay: 2
+      spawnInterval: 2
+    waveDelay: 20
   - waveName: 4
     enemyList:
     - EnemyType: 0
       count: 10
-      spawnInterval: 0
-    waveDelay: 2
+      spawnInterval: 2
+    waveDelay: 20
   - waveName: 5
     enemyList:
     - EnemyType: 0
       count: 10
-      spawnInterval: 0
-    waveDelay: 2
+      spawnInterval: 2
+    waveDelay: 20
   curWaveEnemyCount: 0
 --- !u!4 &73591134
 Transform:
@@ -4230,7 +4230,7 @@ MonoBehaviour:
   towerMng: {fileID: 1951391492}
   uiMng: {fileID: 2127299338}
   gameObjectList: {fileID: 375872564}
-  currentGold: 1000
+  currentGold: 50
   secPerGold: 1
   nexusPref: {fileID: 7465239002321888133, guid: 25d0dd5b9a66f944994cb95f29bc747b, type: 3}
 --- !u!4 &1735717562
