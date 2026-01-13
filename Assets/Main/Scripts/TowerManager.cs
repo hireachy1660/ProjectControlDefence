@@ -56,7 +56,7 @@ namespace KCH
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, 50f, flootlayer))
                 {
-                    curBuildingTower.transform.position = hit.point + (Vector3.up *1f);
+                    curBuildingTower.transform.position = hit.point;
                     PathRequestManager.CanUnitGrid(hit.point, curBuildingTower.transform.lossyScale.x, curBuildingTower.transform.lossyScale.z, out isvaildPos);
                     if (isvaildPos)
                     {

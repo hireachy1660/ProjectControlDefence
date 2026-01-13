@@ -20,6 +20,9 @@ public class Projectile : MonoBehaviour
 
     private IDamageable owner = null;
 
+    [SerializeField]
+    private ParticleSystem BombParticle = null;
+
     public void Setup(Collider _target, float _damage, bool _useArc, IDamageable _owner)
     {
         target = _target;
@@ -82,6 +85,7 @@ public class Projectile : MonoBehaviour
         {
             if (isExplosive)
             {
+                Instantiate(BombParticle, transform.position, Quaternion.identity);
                 Explode();
             }
             else
@@ -122,6 +126,7 @@ public class Projectile : MonoBehaviour
             if (hit.CompareTag("Enemy"))
             {
                 hit.GetComponent<IDamageable>()?.TakeDamage(damage, owner);
+
             }
         }
     }
