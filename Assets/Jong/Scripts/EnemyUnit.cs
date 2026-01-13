@@ -282,6 +282,14 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
         while (target != null && isChase)
         {
+            if(path == null || target == null)
+            {
+                state = EnemyState.Move;
+                isChase = false;
+
+                break;
+            }
+          
             //Vector3 bound = target.GetComponent<Collider>().bounds.size;
             //float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
             //attackRange =  originattackRng + bounddis;
@@ -405,25 +413,30 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             return;
         curHealth -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
-        if(curHealth <= 0f)
+        if (curHealth <= 0f)
         {
-            transform.GetComponent<Collider>().enabled= false;
+            transform.GetComponent<Collider>().enabled = false;
             Die();
         }
-        else if (_target != null)
+        else if (_target != null && target != null)
         {
             if (target == _target.transform) return;
             if ((target.position - transform.position).sqrMagnitude < (_target.transform.position - transform.position).sqrMagnitude) return;
             target = _target.transform;
             StopAllCoroutines();
-            Collider col = _target.transform.GetComponent<Collider>();
-            float bounddis = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
-            attackRange = originattackRng + bounddis;
-            PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
-
-            isChase = true;
-            StartCoroutine("Chase");
-
+            if (target != null)
+            {
+                Collider col = _target.transform.GetComponent<Collider>();
+                float bounddis = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+                attackRange = originattackRng + bounddis;
+                PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+                isChase = true;
+                StartCoroutine("Chase");
+            }
+        }
+        else
+        {
+            PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
         }
     }
 

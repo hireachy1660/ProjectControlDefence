@@ -192,6 +192,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KCH.Nexus
   maxHealth: 100
+  curHealth: 100
+  range: 5
+  attackRate: 10
+  damage: 10
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  projectilePrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  myCollider: {fileID: 8150795507955325790}
+  type: 0
 --- !u!65 &8150795507955325790
 BoxCollider:
   m_ObjectHideFlags: 0
