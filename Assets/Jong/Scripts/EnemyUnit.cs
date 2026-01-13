@@ -413,6 +413,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         else if (_target != null)
         {
             if (target == _target.transform) return;
+            if ((target.position - transform.position).sqrMagnitude < (_target.transform.position - transform.position).sqrMagnitude) return;
             target = _target.transform;
             StopAllCoroutines();
             Collider col = _target.transform.GetComponent<Collider>();
@@ -464,6 +465,11 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             }
             yield return null;
         }
+        if(target == null)
+        {
+            attackRange = originattackRng;
+            PathRequestManager.RequestPath(transform.position, baseCampPos, OnPathFound);
+        }
         if (dist > detectionRange * detectionRange)
         {
             target = null;
@@ -494,6 +500,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         
         yield return new WaitForSeconds(2f);
         setDeadCallback?.Invoke(this);
-        this.gameObject.SetActive(false);
+        //this.gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }

@@ -100,7 +100,8 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         //타워 매니저의 풀로 돌아가거나 파괴됨
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
     //에디터 사거리 시각화
