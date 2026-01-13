@@ -17,7 +17,7 @@ public class CardManager : MonoBehaviour
     [SerializeField]
     private const int MAX_SLOTS = 5;        // 항상 유지할 카드 갯수
     [SerializeField]
-    private const int REROLL_COST = 100;    // 리롤 비용 설정
+    private const int REROLL_COST = 2;    // 리롤 비용 설정
 
     // 게임 시작 시 처음으로 5장의 카드를 뽑아 리스트로 반환한다.
     public List<CardRawData> GetInitialHand()
