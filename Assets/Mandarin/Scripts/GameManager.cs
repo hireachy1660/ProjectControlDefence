@@ -62,6 +62,7 @@ public class GameManager :  MonoBehaviour
         uiMng.UpdateGold(currentGold);
         StartCoroutine(GetGoldCoroutine(secPerGold));
         Nexus newNexus = Instantiate(nexusPref);
+        spawnUnitCallback?.Invoke(newNexus);
         nexuses.Add(newNexus);
         newNexus.transform.position = transform.position;
         SetNexuses();
