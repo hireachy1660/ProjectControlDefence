@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Searcher;
 using UnityEngine;
 
 public class NameNTypeSO : ScriptableObject
