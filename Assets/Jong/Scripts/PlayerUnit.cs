@@ -1,13 +1,11 @@
 using System.Collections;
 using UnityEngine;
-using static EnemyUnit;
-using static UnityEngine.GraphicsBuffer;
 
 public class PlayerUnit : MonoBehaviour, IDamageable
 {
     public delegate void DeadCallback(PlayerUnit _dead);
     private DeadCallback setDeadCallback = null;
-    public DeadCallback SEtDeadCallback
+    public DeadCallback SetDeadCallback
     {
         set { setDeadCallback = value; }
     }
@@ -37,10 +35,11 @@ public class PlayerUnit : MonoBehaviour, IDamageable
     private float chaseSpeed = 7f;
     
     private float detectionRange = 10f;
-    private float attackRange = 5f;
+    private float attackRange = 2.5f;
+    private float originattackRng = 2.5f;
     private Vector3 destination;
 
-    private float dmg = 5f;
+    private float dmg = 20f;
 
     private UnitState state = UnitState.Idle;
     private UnitState lastState = UnitState.Idle;
@@ -86,7 +85,6 @@ public class PlayerUnit : MonoBehaviour, IDamageable
 
     private void Update()
     {
-        //CheckChase();
         if (Input.GetMouseButtonDown(1) && shouldMove)
         {
             Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
@@ -118,7 +116,6 @@ public class PlayerUnit : MonoBehaviour, IDamageable
             if (!isChase)
             {
                 StopCoroutine("FollowPath");
-                //StopCoroutine("Chase");
                 StartCoroutine("FollowPath");
             }
         }
@@ -231,11 +228,14 @@ public class PlayerUnit : MonoBehaviour, IDamageable
     {
         float refreshRate = 0.25f; 
         float timer = 0f;
-
+        path = null;
         state = UnitState.Chase;
         UpdateAnimation(state);
         while (target != null && isChase)
         {
+            Collider col = target.transform.GetComponent<Collider>();
+            float bounddis = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+            attackRange = originattackRng + bounddis;
             timer += Time.deltaTime;
             if (timer >= refreshRate)
             {
@@ -253,21 +253,18 @@ public class PlayerUnit : MonoBehaviour, IDamageable
             {
                 state = UnitState.Attack;
                 StartCoroutine("AttackCoroutine");
-                //mr.material.color = Color.red;
                 yield break;
               
             }
             else if (dist <= detectionRange * detectionRange)
             {
                 state = UnitState.Chase;
-                //mr.material.color = Color.yellow;
             }
             else
             {
                 target = null;
                 state = UnitState.Idle;
                 isChase = false;
-                //mr.material.color = Color.white;
 
                 break;
             }
@@ -312,6 +309,7 @@ public class PlayerUnit : MonoBehaviour, IDamageable
         animator.SetBool("Move", false);
         animator.SetBool("Chase", false);
         animator.SetBool("Attack", false);
+        animator.SetBool("Die", false);
 
         switch (newState)
         {
@@ -326,6 +324,9 @@ public class PlayerUnit : MonoBehaviour, IDamageable
                 break;
             case UnitState.Attack:
                 animator.SetBool("Attack", true);
+                break;
+            case UnitState.Die:
+                animator.SetBool("Die", true);
                 break;
         }
     }
@@ -367,20 +368,23 @@ public class PlayerUnit : MonoBehaviour, IDamageable
             return;
         curHealth -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : " + curHealth);
-        if (_target != null)
-        {
-            if (target == null)
-                target = _target.transform;
-            //float originTarget = (target.position - transform.position).sqrMagnitude;
-            //float newTarget = (_target.transform.position - transform.position).sqrMagnitude;
-            //if (originTarget > newTarget)
-            //{
-            //    target = _target.transform;
-            //}
-        }
         if (curHealth <= 0f)
         {
             Die();
+        }
+        else if (_target != null)
+        {
+            if (target == null)
+            {
+                target = _target.transform;
+                StopAllCoroutines();
+                Collider col = _target.transform.GetComponent<Collider>();
+                float bounddis = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+                attackRange = originattackRng + bounddis;
+                PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+                isChase = true;
+                StartCoroutine("Chase");
+            }
         }
     }
     private IEnumerator AttackCoroutine()
@@ -418,11 +422,7 @@ public class PlayerUnit : MonoBehaviour, IDamageable
             }
             yield return null;
         }
-        if(state == UnitState.Attack)
-        {
-            state = UnitState.Idle;
-            UpdateAnimation(state);
-        }
+        
         if (target != null && target.gameObject.activeInHierarchy)
         {
             float currentDist = (transform.position - target.position).sqrMagnitude;
@@ -439,6 +439,9 @@ public class PlayerUnit : MonoBehaviour, IDamageable
         if (state == UnitState.Die)
             return;
         StopAllCoroutines();
+        target = null;
+        isChase = false;
+        state = UnitState.Idle;
         StartCoroutine("DeadCoroutine");
         UnitSelectionManager.Instance.allUnitsList.Remove(gameObject);
         if (UnitSelectionManager.Instance.unitsSelected.Contains(gameObject))

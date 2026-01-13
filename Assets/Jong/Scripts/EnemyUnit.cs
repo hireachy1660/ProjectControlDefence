@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class EnemyUnit : MonoBehaviour, IDamageable
 {
@@ -10,6 +9,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     {
         set { setDeadCallback = value; }
     }
+    
     public enum EnemyState
     {
         Idle,
@@ -37,8 +37,8 @@ public class EnemyUnit : MonoBehaviour, IDamageable
     private  float attackDelay = 10f;
     private float attackTime = 0f;
     
-    private float dmg = 5f;
-
+    private float dmg = 20f;
+    [SerializeField]
     private EnemyState state = EnemyState.Idle;
     private EnemyState lastState = EnemyState.Idle;
     //private MeshRenderer mr = null;
@@ -359,6 +359,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         animator.SetBool("Move", false);
         animator.SetBool("Chase", false);
         animator.SetBool("Attack", false);
+        animator.SetBool("Die", false);
 
         switch (newState)
         {
@@ -374,6 +375,10 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             case EnemyState.Attack:
                 animator.SetBool("Attack", true);
                 break;
+            case EnemyState.Die:
+                animator.SetBool("Die", true);
+                break;
+
         }
     }
 
