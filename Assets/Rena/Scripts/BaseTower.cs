@@ -71,6 +71,8 @@ public abstract class BaseTower : MonoBehaviour, IDamageable
                 nextAttackTime = Time.time + 1f / attackRate;
             }
         }
+        if (currentTarget != null) 
+        transform.LookAt(currentTarget.transform.position);
     }
 
     //적을 찾는 로직
