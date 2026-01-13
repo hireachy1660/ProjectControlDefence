@@ -3,7 +3,7 @@ namespace KCH
 
     using UnityEngine;
 
-    public class Nexus : MonoBehaviour , IDamageable
+    public class Nexus : BaseTower , IDamageable
     {
         public delegate void NexusDestroydelegate(KCH.Nexus _nexus);
 
@@ -13,28 +13,30 @@ namespace KCH
         { set { nexusDestroyCallback = value; } }
 
 
-        [SerializeField]
-        private float maxHealth = 100f;
-        private float curHealth = 100f;
+        //private float maxHealth = 100f;
+        //private float curHealth = 100f;
 
-        public float MaxHealth
-        { get { return maxHealth; } }
-        public float CurHealth
-        { get { return curHealth; } }
+
 
         private void OnEnable()
         {
-            curHealth = maxHealth;
+            curHealth = MaxHealth;
         }
 
-        public void TakeDamage(float _dmg, IDamageable _target)
+        public override void TakeDamage(float _dmg, IDamageable _target)
         {
             curHealth -= (int)_dmg;
+            Debug.Log("curHealth :" +  curHealth);
             if (curHealth <= 0 )
             {
                 nexusDestroyCallback?.Invoke(this);
                 Destroy(this);
             }
+        }
+
+        protected override void Attack()
+        {
+            Debug.Log("Base not have Attack");
         }
 
     }

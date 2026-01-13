@@ -171,7 +171,7 @@ MonoBehaviour:
   maxHealth: 100
   curHealth: 100
   range: 5
-  attackRate: 5
+  attackRate: 1
   damage: 10
   targetLayer:
     serializedVersion: 2

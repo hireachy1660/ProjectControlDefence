@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class EnemyUnit : MonoBehaviour, IDamageable
 {
@@ -281,9 +282,12 @@ public class EnemyUnit : MonoBehaviour, IDamageable
 
         while (target != null && isChase)
         {
-            Vector3 bound = target.GetComponent<Collider>().bounds.size;
-            float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
-            attackRange =  originattackRng + bounddis;
+            //Vector3 bound = target.GetComponent<Collider>().bounds.size;
+            //float bounddis = Mathf.Sqrt(bound.x * bound.x + bound.z * bound.z);
+            //attackRange =  originattackRng + bounddis;
+            Collider col = target.transform.GetComponent<Collider>();
+            float bounddis = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+            attackRange = originattackRng + bounddis;
             timer += Time.deltaTime;
             if (timer >= refreshRate)
             {
@@ -396,7 +400,12 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             return;
         curHealth -= (int)damage;
         Debug.Log("Name : " + gameObject.name + ",Hp : "  + curHealth);
-        if (_target != null)
+        if(curHealth <= 0f)
+        {
+            transform.GetComponent<Collider>().enabled= false;
+            Die();
+        }
+        else if (_target != null)
         {
             if (target == _target.transform) return;
             target = _target.transform;
@@ -409,11 +418,6 @@ public class EnemyUnit : MonoBehaviour, IDamageable
             isChase = true;
             StartCoroutine("Chase");
 
-        }
-        if(curHealth <= 0f)
-        {
-            transform.GetComponent<Collider>().enabled= false;
-            Die();
         }
     }
 
@@ -472,6 +476,9 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         if (state == EnemyState.Die)
             return;
         StopAllCoroutines();
+        target = null;
+        isChase = false;
+        state = EnemyState.Idle;
         StartCoroutine("DeadCoroutine");
     }
 

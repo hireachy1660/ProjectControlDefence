@@ -12,13 +12,13 @@ public class GameObjectList : MonoBehaviour
     private List<EnemyUnit> enemyUnit;
 
     [SerializeField]
-    private List<TowerUnit> towerUnit;
+    private List<BaseTower> towerUnit;
     private void Awake()
     {
         instance = this;
         playerUnit = new List<PlayerUnit>();
         enemyUnit = new List<EnemyUnit>();
-        towerUnit = new List<TowerUnit>();
+        towerUnit = new List<BaseTower>();
 
     }
 
@@ -41,12 +41,13 @@ public class GameObjectList : MonoBehaviour
             }
         }
 
-        TowerUnit[] towerList = FindObjectsByType<TowerUnit>(FindObjectsSortMode.None);
+        BaseTower[] towerList = FindObjectsByType<BaseTower>(FindObjectsSortMode.None);
         for (int i = 0; i < towerList.Length; ++i)
         {
             if (!towerUnit.Contains(towerList[i]))
             {
                 towerUnit.Add(towerList[i]);
+                
             }
         }
 
