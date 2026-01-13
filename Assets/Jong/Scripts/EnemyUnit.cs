@@ -412,6 +412,7 @@ public class EnemyUnit : MonoBehaviour, IDamageable
         }
         if(curHealth <= 0f)
         {
+            transform.GetComponent<Collider>().enabled= false;
             Die();
         }
     }

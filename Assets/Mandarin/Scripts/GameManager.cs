@@ -1,6 +1,7 @@
  using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using KCH;
 
 
 public class GameManager :  MonoBehaviour
@@ -39,6 +40,8 @@ public class GameManager :  MonoBehaviour
     //[SerializeField] private int rerollCost = 100;      // 리롤 비용
     [SerializeField]
     private int secPerGold = 1;
+    [SerializeField]
+    private Nexus nexusPref = null;
 
     // 객체가 생성될 때(Awake) 자기 자신을 Instance에 할당한다.
     // 다른 스크립트에서 현재 골드가 얼마인지 읽기만할 때
@@ -56,10 +59,12 @@ public class GameManager :  MonoBehaviour
 
     private void Start()
     {
-        SetNexuses();
         uiMng.UpdateGold(currentGold);
         StartCoroutine(GetGoldCoroutine(secPerGold));
-
+        Nexus newNexus = Instantiate(nexusPref);
+        nexuses.Add(newNexus);
+        newNexus.transform.position = transform.position;
+        SetNexuses();
     }
     #endregion
 
